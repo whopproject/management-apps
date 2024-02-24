@@ -15,9 +15,10 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('invoice');
             $table->dateTime('tanggal');
-            $table->enum('status', ['Selesai', 'Belum Selesai']);
+            $table->enum('status', ['Selesai', 'Draft']);
             $table->integer('total_item');
             $table->bigInteger('total_harga');
+            $table->foreignUuid('id_diskon')->nullable()->constrained('master_diskon')->references('id')->onDelete('restrict')->onUpdate('cascade');
             $table->timestamps();
         });
     }

@@ -13,7 +13,6 @@ use App\Traits\HashUuid;
 class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
-    // use HashUuid;
 
     protected $table = 'users';
     protected $primaryKey = 'id';
@@ -26,9 +25,6 @@ class User extends Authenticatable implements JWTSubject
     protected $fillable = [
         'name', 'email', 'password'
     ];
-    // protected $casts = [
-    //     'id' => HashId::class
-    // ];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -46,6 +42,11 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function dataRole()
+    {
+        return $this->belongsTo(Role::class, 'id_role', 'id');
     }
 
     public function scopeSearch($query, $term)

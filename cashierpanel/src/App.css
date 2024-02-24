@@ -23,3 +23,13 @@
 * {
     font-family: 'Poppins', 'sans-serif';
 }
+
+.customModal {
+    border-radius: 0.5rem;
+    border: none;
+}
+
+.customModal:focus {
+    outline-width: 0px;
+    border: none;
+}

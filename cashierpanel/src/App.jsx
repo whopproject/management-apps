@@ -5,13 +5,15 @@ import Login from "./pages/auth/Login";
 import { LoginRoute } from "./routes/LoginRoute";
 import { Home } from "./pages/panels/Home";
 import { AdminRoute } from "./routes/AdminRoute";
-import { Panel } from "./pages/panels/Panel";
+import Panel from "./pages/panels/Panel";
+import { MainProvider } from "./context/MainContext";
 // import Edit from "./Pages/Profile/Edit";
 
 function App() {
     return (
         <>
             <BrowserRouter>
+                {/* <MainProvider> */}
                 <Routes>
                     <Route
                         path="/"
@@ -38,6 +40,7 @@ function App() {
                         }
                     ></Route>
                 </Routes>
+                {/* </MainProvider> */}
             </BrowserRouter>
         </>
     );
