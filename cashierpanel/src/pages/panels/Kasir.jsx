@@ -10,7 +10,7 @@ import { ModalPrimary } from "../../components/ModalPrimary";
 import CurrencyInput from "react-currency-input-field";
 import { Loader } from "../../components/Loader";
 
-export default function Panel() {
+export const Kasir = () => {
     const [data, setData] = useState([]);
     const [fetchStatus, setFetchStatus] = useState(true);
     const [cart, setCart] = useState([]);
@@ -658,4 +658,4 @@ export default function Panel() {
             </PanelLayout>
         </>
     );
-}
+};

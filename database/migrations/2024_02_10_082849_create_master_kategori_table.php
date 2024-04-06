@@ -14,11 +14,8 @@ return new class extends Migration
         Schema::create('master_kategori', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('nama');
+            $table->string('slug');
             $table->timestamps();
-        });
-
-        Schema::table('master_kategori', function (Blueprint $table) {
-            $table->foreignUuid('id_parent_kategori')->nullable()->constrained('master_kategori')->references('id')->onDelete('restrict')->onUpdate('cascade');
         });
     }
 

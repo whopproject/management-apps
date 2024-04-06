@@ -2,7 +2,13 @@ import "react-responsive-modal/styles.css";
 import { Modal } from "react-responsive-modal";
 import { useState } from "react";
 
-export const ModalPrimary = ({ open, closeModal, header }) => {
+export const ModalPrimary = ({
+    submitAction,
+    open,
+    closeModal,
+    header,
+    children,
+}) => {
     return (
         <>
             <Modal
@@ -15,7 +21,7 @@ export const ModalPrimary = ({ open, closeModal, header }) => {
                     modal: "customModal",
                 }}
             >
-                <div className="relative">
+                <div className="relative min-w-2xl w-full max-w-3xl">
                     {/* Modal header */}
                     <div className="flex items-center justify-between py-3 border-b border-b-gray-500 rounded-t">
                         <h3 className="text-xl font-semibold text-gray-900">
@@ -44,39 +50,26 @@ export const ModalPrimary = ({ open, closeModal, header }) => {
                             <span className="sr-only">Close modal</span>
                         </button>
                     </div>
-                    {/* Modal body */}
-                    <div className="px-2 py-5 space-y-4">
-                        <p className="text-base leading-relaxed text-black">
-                            With less than a month to go before the European
-                            Union enacts new consumer privacy laws for its
-                            citizens, companies around the world are updating
-                            their terms of service agreements to comply.
-                        </p>
-                        <p className="text-base leading-relaxed text-black">
-                            The European Union’s General Data Protection
-                            Regulation (G.D.P.R.) goes into effect on May 25 and
-                            is meant to ensure a common set of data rights in
-                            the European Union. It requires organizations to
-                            notify users as soon as possible of high-risk data
-                            breaches that could personally affect them.
-                        </p>
-                    </div>
-                    {/* Modal footer */}
-                    <div className="flex justify-end py-3 border-t border-t-gray-500 rounded-b">
-                        <button
-                            type="button"
-                            className="text-white bg-green-700 hover:bg-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                        >
-                            Submit
-                        </button>
-                        <button
-                            type="button"
-                            onClick={closeModal}
-                            className="py-2.5 px-5 ms-3 text-sm font-medium text-white focus:outline-none bg-red-500 rounded-lg hover:bg-red-600 focus:z-10"
-                        >
-                            Cancel
-                        </button>
-                    </div>
+                    <form onSubmit={submitAction}>
+                        {/* Modal body */}
+                        <div className="px-2 py-5 space-y-4">{children}</div>
+                        {/* Modal footer */}
+                        <div className="flex justify-end py-3 border-t border-t-gray-500 rounded-b">
+                            <button
+                                type="submit"
+                                className="text-white bg-green-700 hover:bg-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                            >
+                                Save
+                            </button>
+                            <button
+                                type="button"
+                                onClick={closeModal}
+                                className="py-2.5 px-5 ms-3 text-sm font-medium text-white focus:outline-none bg-red-500 rounded-lg hover:bg-red-600 focus:z-10"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </Modal>
         </>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export const PanelLayout = ({ children }) => {
     const location = useLocation();
@@ -29,186 +29,6 @@ export const PanelLayout = ({ children }) => {
                             </svg>
                         </a>
                         <ul className="flex flex-col space-y-2 mt-24">
-                            <li className="relative">
-                                <a href="#" className="flex items-center">
-                                    <span
-                                        className={
-                                            "flex items-center justify-center h-12 w-12 rounded-2xl " +
-                                            (location.pathname == "/panel"
-                                                ? "text-black bg-cyan-200 hover:bg-cyan-700 shadow-xl"
-                                                : "text-black bg-white hover:bg-cyan-400")
-                                        }
-                                        onMouseEnter={() => setHoverPos(true)}
-                                        onMouseLeave={() => setHoverPos(false)}
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth="1.5"
-                                            stroke="currentColor"
-                                            className="w-6 h-6"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
-                                            />
-                                        </svg>
-                                    </span>
-                                </a>
-                                <div
-                                    className={
-                                        "z-20 top-1 left-14 " +
-                                        (hoverPos ? "absolute" : "hidden")
-                                    }
-                                >
-                                    <div className="flex items-center flex-row-reverse mb-4">
-                                        <div className="bg-cyan-200 inline-flex shadow-2xl items-center justify-center font-bold text-sm w-full text-center rounded-2xl text-black p-3 relative">
-                                            <div>Kasir</div>
-                                            <div className="absolute left-0 top-1/2 rounded-bl-full transform -translate-x-1/2 -rotate-45 w-3 h-2 bg-cyan-200" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li className="relative">
-                                <a href="#" className="flex items-center">
-                                    <span
-                                        className={
-                                            "flex items-center justify-center h-12 w-12 rounded-2xl " +
-                                            (location.pathname == "/"
-                                                ? "text-black bg-cyan-200 hover:bg-cyan-700"
-                                                : "text-black bg-white hover:bg-cyan-400")
-                                        }
-                                        onMouseEnter={() =>
-                                            setHoverKategori(true)
-                                        }
-                                        onMouseLeave={() =>
-                                            setHoverKategori(false)
-                                        }
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth="1.5"
-                                            stroke="currentColor"
-                                            className="w-6 h-6"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"
-                                            />
-                                        </svg>
-                                    </span>
-                                </a>
-                                <div
-                                    className={
-                                        "z-20 top-1 left-14 " +
-                                        (hoverKategori ? "absolute" : "hidden")
-                                    }
-                                >
-                                    <div className="flex items-center flex-row-reverse mb-4">
-                                        <div className="bg-cyan-200 inline-flex shadow-2xl items-center justify-center font-bold text-sm w-full text-center rounded-2xl text-black p-3 relative">
-                                            <div>Kategori</div>
-                                            <div className="absolute left-0 top-1/2 rounded-bl-full transform -translate-x-1/2 -rotate-45 w-3 h-2 bg-cyan-200" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li className="relative">
-                                <a href="#" className="flex items-center">
-                                    <span
-                                        className={
-                                            "flex items-center justify-center h-12 w-12 rounded-2xl " +
-                                            (location.pathname == "/"
-                                                ? "text-black bg-cyan-200 hover:bg-cyan-700"
-                                                : "text-black bg-white hover:bg-cyan-400")
-                                        }
-                                        onMouseEnter={() =>
-                                            setHoverProduct(true)
-                                        }
-                                        onMouseLeave={() =>
-                                            setHoverProduct(false)
-                                        }
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            className="h-6 w-6"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                                            />
-                                        </svg>
-                                    </span>
-                                </a>
-                                <div
-                                    className={
-                                        "z-20 top-1 left-14 " +
-                                        (hoverProduct ? "absolute" : "hidden")
-                                    }
-                                >
-                                    <div className="flex items-center flex-row-reverse mb-4">
-                                        <div className="bg-cyan-200 inline-flex shadow-2xl items-center justify-center font-bold text-sm w-full text-center rounded-2xl text-black p-3 relative">
-                                            <div>Produk</div>
-                                            <div className="absolute left-0 top-1/2 rounded-bl-full transform -translate-x-1/2 -rotate-45 w-3 h-2 bg-cyan-200" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li className="relative">
-                                <a href="#" className="flex items-center">
-                                    <span
-                                        className={
-                                            "flex items-center justify-center h-12 w-12 rounded-2xl " +
-                                            (location.pathname == "/"
-                                                ? "text-black bg-cyan-200 hover:bg-cyan-700"
-                                                : "text-black bg-white hover:bg-cyan-400")
-                                        }
-                                        onMouseEnter={() =>
-                                            setHoverPembelian(true)
-                                        }
-                                        onMouseLeave={() =>
-                                            setHoverPembelian(false)
-                                        }
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth="1.5"
-                                            stroke="currentColor"
-                                            className="w-6 h-6"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z"
-                                            />
-                                        </svg>
-                                    </span>
-                                </a>
-                                <div
-                                    className={
-                                        "z-20 top-1 left-14 " +
-                                        (hoverPembelian ? "absolute" : "hidden")
-                                    }
-                                >
-                                    <div className="flex items-center flex-row-reverse mb-4">
-                                        <div className="bg-cyan-200 inline-flex shadow-2xl items-center justify-center font-bold text-sm w-full text-center rounded-2xl text-black p-3 relative">
-                                            <div>Pembelian</div>
-                                            <div className="absolute left-0 top-1/2 rounded-bl-full transform -translate-x-1/2 -rotate-45 w-3 h-2 bg-cyan-200" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
                             <li className="relative">
                                 <a href="#" className="flex items-center">
                                     <span
@@ -249,7 +69,202 @@ export const PanelLayout = ({ children }) => {
                                 >
                                     <div className="flex items-center flex-row-reverse mb-4">
                                         <div className="bg-cyan-200 inline-flex shadow-2xl items-center justify-center font-bold text-sm w-full text-center rounded-2xl text-black p-3 relative">
-                                            <div>Profile Toko</div>
+                                            <div>Dashboard</div>
+                                            <div className="absolute left-0 top-1/2 rounded-bl-full transform -translate-x-1/2 -rotate-45 w-3 h-2 bg-cyan-200" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li className="relative">
+                                <Link
+                                    to={"/panel/kasir"}
+                                    className="flex items-center"
+                                >
+                                    <span
+                                        className={
+                                            "flex items-center justify-center h-12 w-12 rounded-2xl " +
+                                            (location.pathname == "/panel/kasir"
+                                                ? "text-black bg-cyan-200 hover:bg-cyan-700 shadow-xl"
+                                                : "text-black bg-white hover:bg-cyan-400")
+                                        }
+                                        onMouseEnter={() => setHoverPos(true)}
+                                        onMouseLeave={() => setHoverPos(false)}
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            strokeWidth="1.5"
+                                            stroke="currentColor"
+                                            className="w-6 h-6"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                                            />
+                                        </svg>
+                                    </span>
+                                </Link>
+                                <div
+                                    className={
+                                        "z-20 top-1 left-14 " +
+                                        (hoverPos ? "absolute" : "hidden")
+                                    }
+                                >
+                                    <div className="flex items-center flex-row-reverse mb-4">
+                                        <div className="bg-cyan-200 inline-flex shadow-2xl items-center justify-center font-bold text-sm w-full text-center rounded-2xl text-black p-3 relative">
+                                            <div>Kasir</div>
+                                            <div className="absolute left-0 top-1/2 rounded-bl-full transform -translate-x-1/2 -rotate-45 w-3 h-2 bg-cyan-200" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li className="relative">
+                                <Link
+                                    to={"/panel/kategoriproduk"}
+                                    className="flex items-center"
+                                >
+                                    <span
+                                        className={
+                                            "flex items-center justify-center h-12 w-12 rounded-2xl " +
+                                            (location.pathname ==
+                                            "/panel/kategoriproduk"
+                                                ? "text-black bg-cyan-200 hover:bg-cyan-700"
+                                                : "text-black bg-white hover:bg-cyan-400")
+                                        }
+                                        onMouseEnter={() =>
+                                            setHoverKategori(true)
+                                        }
+                                        onMouseLeave={() =>
+                                            setHoverKategori(false)
+                                        }
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            strokeWidth="1.5"
+                                            stroke="currentColor"
+                                            className="w-6 h-6"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"
+                                            />
+                                        </svg>
+                                    </span>
+                                </Link>
+                                <div
+                                    className={
+                                        "z-20 top-1 left-14 " +
+                                        (hoverKategori ? "absolute" : "hidden")
+                                    }
+                                >
+                                    <div className="flex items-center flex-row-reverse mb-4">
+                                        <div className="bg-cyan-200 inline-flex shadow-2xl items-center justify-center font-bold text-sm w-full text-center rounded-2xl text-black p-3 relative">
+                                            <div>Kategori</div>
+                                            <div className="absolute left-0 top-1/2 rounded-bl-full transform -translate-x-1/2 -rotate-45 w-3 h-2 bg-cyan-200" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li className="relative">
+                                <Link
+                                    to={"/panel/produk"}
+                                    className="flex items-center"
+                                >
+                                    <span
+                                        className={
+                                            "flex items-center justify-center h-12 w-12 rounded-2xl " +
+                                            (location.pathname ==
+                                            "/panel/produk"
+                                                ? "text-black bg-cyan-200 hover:bg-cyan-700"
+                                                : "text-black bg-white hover:bg-cyan-400")
+                                        }
+                                        onMouseEnter={() =>
+                                            setHoverProduct(true)
+                                        }
+                                        onMouseLeave={() =>
+                                            setHoverProduct(false)
+                                        }
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="h-6 w-6"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                                            />
+                                        </svg>
+                                    </span>
+                                </Link>
+                                <div
+                                    className={
+                                        "z-20 top-1 left-14 " +
+                                        (hoverProduct ? "absolute" : "hidden")
+                                    }
+                                >
+                                    <div className="flex items-center flex-row-reverse mb-4">
+                                        <div className="bg-cyan-200 inline-flex shadow-2xl items-center justify-center font-bold text-sm w-full text-center rounded-2xl text-black p-3 relative">
+                                            <div>Produk</div>
+                                            <div className="absolute left-0 top-1/2 rounded-bl-full transform -translate-x-1/2 -rotate-45 w-3 h-2 bg-cyan-200" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li className="relative">
+                                <Link
+                                    to={"/panel/pembelian"}
+                                    className="flex items-center"
+                                >
+                                    <span
+                                        className={
+                                            "flex items-center justify-center h-12 w-12 rounded-2xl " +
+                                            (location.pathname ==
+                                            "/panel/pembelian"
+                                                ? "text-black bg-cyan-200 hover:bg-cyan-700"
+                                                : "text-black bg-white hover:bg-cyan-400")
+                                        }
+                                        onMouseEnter={() =>
+                                            setHoverPembelian(true)
+                                        }
+                                        onMouseLeave={() =>
+                                            setHoverPembelian(false)
+                                        }
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            strokeWidth="1.5"
+                                            stroke="currentColor"
+                                            className="w-6 h-6"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z"
+                                            />
+                                        </svg>
+                                    </span>
+                                </Link>
+                                <div
+                                    className={
+                                        "z-20 top-1 left-14 " +
+                                        (hoverPembelian ? "absolute" : "hidden")
+                                    }
+                                >
+                                    <div className="flex items-center flex-row-reverse mb-4">
+                                        <div className="bg-cyan-200 inline-flex shadow-2xl items-center justify-center font-bold text-sm w-full text-center rounded-2xl text-black p-3 relative">
+                                            <div>Pembelian</div>
                                             <div className="absolute left-0 top-1/2 rounded-bl-full transform -translate-x-1/2 -rotate-45 w-3 h-2 bg-cyan-200" />
                                         </div>
                                     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Models\Transaksi;
 
+use App\Models\Master\MasterProduk;
 use App\Models\Master\Produk;
 use App\Traits\HashId;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,6 +24,6 @@ class TransaksiItem extends Model
 
     public function dataProduk()
     {
-        return $this->belongsTo(Produk::class, 'id_produk', 'id');
+        return $this->belongsTo(MasterProduk::class, 'id_produk', 'id');
     }
 }

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('harga');
             $table->string('gambar');
             $table->integer('stok');
+            $table->string('slug');
             $table->foreignUuid('id_kategori')->constrained('master_kategori')->references('id')->onDelete('restrict')->onUpdate('cascade');
             $table->foreignUuid('id_diskon')->nullable()->constrained('master_diskon')->references('id')->onDelete('set null')->onUpdate('cascade');
             $table->timestamps();

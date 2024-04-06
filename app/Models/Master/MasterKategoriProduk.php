@@ -2,19 +2,19 @@
 
 namespace App\Models\Master;
 
+use App\Traits\HashId;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\Sluggable;
-use App\Traits\HashId;
 
-class Produk extends Model
+class MasterKategoriProduk extends Model
 {
     use HasFactory;
     use Sluggable;
     use HashId;
 
-    protected $table = 'master_produk';
-    protected $fillable = ['nama', 'harga', 'gambar', 'stok', 'id_kategori', 'id_diskon'];
+    protected $table = 'master_kategori';
+    protected $fillable = ['nama'];
     protected $primaryKey = 'id';
 
     public function scopeSearch($query, $term)
@@ -26,9 +26,9 @@ class Produk extends Model
         });
     }
 
-    public function dataKategoriProduk()
+    public function dataProduk()
     {
-        return $this->belongsTo(KategoriProduk::class, 'id_kategori', 'id');
+        return $this->hasMany(MasterProduk::class, 'id_kategori', 'id');
     }
 
     public function sluggable(): array

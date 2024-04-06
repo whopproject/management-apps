@@ -27,6 +27,7 @@
 .customModal {
     border-radius: 0.5rem;
     border: none;
+    min-width: 42rem;
 }
 
 .customModal:focus {

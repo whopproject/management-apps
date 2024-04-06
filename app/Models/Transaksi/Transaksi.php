@@ -3,6 +3,7 @@
 namespace App\Models\Transaksi;
 
 use App\Models\Master\Diskon;
+use App\Models\Master\MasterDiskon;
 use App\Traits\HashId;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +19,6 @@ class Transaksi extends Model
 
     public function dataDiskon()
     {
-        return $this->belongsTo(Diskon::class, 'id_transaksi', 'id');
+        return $this->belongsTo(MasterDiskon::class, 'id_transaksi', 'id');
     }
 }

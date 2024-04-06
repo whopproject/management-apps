@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export const Home = () => {
     return (
         <>
@@ -13,8 +15,8 @@ export const Home = () => {
                     </header>
                     <ul className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2 px-52">
                         <li>
-                            <a
-                                href="#"
+                            <Link
+                                to={"/panel/dashboard"}
                                 className="group relative block rounded-2xl overflow-hidden"
                             >
                                 <img
@@ -44,7 +46,7 @@ export const Home = () => {
                                         </svg>
                                     </div>
                                 </div>
-                            </a>
+                            </Link>
                         </li>
                         <li>
                             <a

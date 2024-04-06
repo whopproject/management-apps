@@ -3,15 +3,13 @@
 namespace App\Models\Master;
 
 use App\Models\Transaksi\Transaksi;
+use App\Traits\HashId;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Cviebrock\EloquentSluggable\Sluggable;
-use App\Traits\HashId;
 
-class Diskon extends Model
+class MasterDiskon extends Model
 {
     use HasFactory;
-    // use Sluggable;
     use HashId;
 
     protected $table = 'master_diskon';
@@ -29,21 +27,11 @@ class Diskon extends Model
 
     public function dataTransaksi()
     {
-        return $this->hasMany(Transaksi::class, 'id_dikon', 'id');
+        return $this->hasMany(Transaksi::class, 'id_diskon', 'id');
     }
 
     public function dataProduk()
     {
-        return $this->hasMany(Produk::class, 'id_dikon', 'id');
+        return $this->hasMany(MasterProduk::class, 'id_diskon', 'id');
     }
-
-    // public function sluggable(): array
-    // {
-    //     return [
-    //         'slug' => [
-    //             'source' => 'judul',
-    //             'onUpdate' => true,
-    //         ]
-    //     ];
-    // }
 }
