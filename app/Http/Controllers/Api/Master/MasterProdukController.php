@@ -21,12 +21,29 @@ class MasterProdukController extends Controller
         $paginate = request('paginate', 10);
         $search_value = request('q', '');
         $id_kategori = request('kategori');
-        $produk = MasterProduk::orderBy('created_at', 'desc')
+        $diskon = request('diskon', '');
+        $stok = request('stok', '');
+        $produk = MasterProduk::with('dataKategoriProduk', 'dataDiskon')
+            ->orderBy('created_at', 'desc')
             ->when($id_kategori, function ($query) use ($id_kategori) {
                 $query->where('id_kategori', $id_kategori);
             })
-            ->search(trim($search_value))
-            ->paginate($paginate);
+            ->search(trim($search_value));
+
+        if ($diskon !== '') {
+            $produk = $produk->whereHas('dataDiskon');
+        }
+
+        if ($stok !== '') {
+            if (str_contains($stok, '-')) {
+                $parsestok = explode('-', $stok);
+                $produk = $produk->whereBetween('stok', $parsestok);
+            } else {
+                $produk = $produk->where('stok', '>=', $stok);
+            }
+        }
+
+        $produk = $produk->paginate($paginate);
         return response(json_encode($produk), 200);
     }
     public function create()
@@ -84,11 +101,13 @@ class MasterProdukController extends Controller
         }
     }
 
-    public function test($id)
+    public function test(Request $request)
     {
-        $data = MasterProduk::findOrFail($id);
-        $filename = explode('/', $data->gambar);
-        dd(end($filename));
+        $master = MasterProduk::get();
+        $data = $request->stok;
+        $filename = explode('-', $data);
+        $master = $master->whereBetween('stok', $filename);
+        dd($master);
     }
 
     public function update(Request $request)

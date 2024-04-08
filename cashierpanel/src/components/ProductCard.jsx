@@ -12,20 +12,23 @@ export const ProductCard = ({ data, onClick }) => {
             <div className="block rounded-lg shadow-xl">
                 <img
                     alt=""
-                    src={produk.image}
+                    src={produk.gambar}
                     className="h-32 w-full rounded-t-md object-cover"
                 />
                 <div className="px-3 py-2">
                     <dl>
                         <div>
-                            <dd className="text-xs text-gray-500">
-                                {rupiah(produk.price)}
+                            <dd className="text-xs font-bold text-gray-500">
+                                {rupiah(produk.harga)}
                             </dd>
                         </div>
                         <div className="h-10 text-xs mt-1">
                             <dd className="font-medium text-xs line-clamp-2">
-                                {produk.title}
+                                {produk.nama}
                             </dd>
+                            <dt className="mt-1 text-gray-500 font-normal text-xs line-clamp-2">
+                                Stok : {produk.stok}
+                            </dt>
                         </div>
                     </dl>
                     <button

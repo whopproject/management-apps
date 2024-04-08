@@ -26,13 +26,15 @@ export const Produk = () => {
     });
 
     const [kategori, setKategori] = useState("");
+    const [filterStok, setFilterStok] = useState("");
+    const [filterDiskon, setFilterDiskon] = useState("");
     const [kategoriProduk, setKategoriProduk] = useState([]);
     const [diskonProduk, setDiskonProduk] = useState([]);
     const [loader, setLoader] = useState(false);
     const [reloadTable, setReloadTable] = useState(false);
     const [headerModal, setHeaderModal] = useState("");
     const [buttonPage, setButtonPage] = useState([]);
-    const [page, setPage] = useState(1);
+    let [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
     const [paginate, setPaginate] = useState(10);
 
@@ -59,7 +61,7 @@ export const Produk = () => {
             .get(
                 `${
                     import.meta.env.VITE_ALL_BASE_URL
-                }/data-master/produk?page=${page}&q=${search}&paginate=${paginate}&kategori=${kategori}`,
+                }/data-master/produk?page=${page}&q=${search}&paginate=${paginate}&kategori=${kategori}&stok=${filterStok}&diskon=${filterDiskon}`,
                 {
                     headers: {
                         Authorization: "Bearer " + Cookies.get("token"),
@@ -105,6 +107,10 @@ export const Produk = () => {
         setReloadTable,
         kategori,
         setKategori,
+        filterDiskon,
+        setFilterDiskon,
+        filterStok,
+        setFilterStok,
     ]);
 
     useEffect(() => {
@@ -343,6 +349,15 @@ export const Produk = () => {
             }
         });
     };
+
+    const rupiah = (number) => {
+        return new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+        }).format(number);
+    };
+
     return (
         <>
             <PanelLayout>
@@ -350,7 +365,15 @@ export const Produk = () => {
                     <div className="w-full px-8 py-2">
                         <div className="relative overflow-x-auto shadow-xl sm:rounded-lg">
                             <TableData
-                                head={["Nama", "Aksi"]}
+                                head={[
+                                    "Gambar",
+                                    "Kategori",
+                                    "Nama",
+                                    "Harga",
+                                    "Stok",
+                                    "Diskon",
+                                    "Aksi",
+                                ]}
                                 label={"Produk"}
                                 pagination={paginate}
                                 changePagination={(e) =>
@@ -363,38 +386,102 @@ export const Produk = () => {
                                     setModalProduk(true);
                                 }}
                                 filter={
-                                    <div className="relative">
-                                        <select
-                                            value={kategori}
-                                            onChange={(e) =>
-                                                setKategori(e.target.value)
-                                            }
-                                            className="h-full border block appearance-none w-full bg-white border-gray-300 text-gray-700 py-2 px-2 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                        >
-                                            <option value="">
-                                                Pilih Kategori
-                                            </option>
-                                            {kategoriProduk.map((kat, x) => {
-                                                return (
-                                                    <option
-                                                        key={x}
-                                                        value={kat.id}
-                                                    >
-                                                        {kat.nama}
-                                                    </option>
-                                                );
-                                            })}
-                                        </select>
-                                        <div className="pointer-events-none absolute top-3 right-0 flex items-center px-2 text-gray-700">
-                                            <svg
-                                                className="fill-current h-4 w-4"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 20 20"
+                                    <>
+                                        <div className="relative">
+                                            <select
+                                                value={filterStok}
+                                                onChange={(e) =>
+                                                    setFilterStok(
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className="h-full border block appearance-none w-full bg-white border-gray-300 text-gray-700 py-2 px-2 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                             >
-                                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                                            </svg>
+                                                <option value="">
+                                                    Stok Barang
+                                                </option>
+                                                <option value="1-10">
+                                                    1-10
+                                                </option>
+                                                <option value="11-20">
+                                                    11-20
+                                                </option>
+                                                <option value="20">
+                                                    {">= 20"}
+                                                </option>
+                                            </select>
+                                            <div className="pointer-events-none absolute top-3 right-0 flex items-center px-2 text-gray-700">
+                                                <svg
+                                                    className="fill-current h-4 w-4"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 20 20"
+                                                >
+                                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                                </svg>
+                                            </div>
                                         </div>
-                                    </div>
+                                        <div className="relative">
+                                            <select
+                                                value={filterDiskon}
+                                                onChange={(e) =>
+                                                    setFilterDiskon(
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className="h-full border block appearance-none w-full bg-white border-gray-300 text-gray-700 py-2 px-2 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                            >
+                                                <option value="">
+                                                    Tidak Diskon
+                                                </option>
+                                                <option value="True">
+                                                    Diskon
+                                                </option>
+                                            </select>
+                                            <div className="pointer-events-none absolute top-3 right-0 flex items-center px-2 text-gray-700">
+                                                <svg
+                                                    className="fill-current h-4 w-4"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 20 20"
+                                                >
+                                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <div className="relative">
+                                            <select
+                                                value={kategori}
+                                                onChange={(e) =>
+                                                    setKategori(e.target.value)
+                                                }
+                                                className="h-full border block appearance-none w-full bg-white border-gray-300 text-gray-700 py-2 px-2 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                            >
+                                                <option value="">
+                                                    Pilih Kategori
+                                                </option>
+                                                {kategoriProduk.map(
+                                                    (kat, x) => {
+                                                        return (
+                                                            <option
+                                                                key={x}
+                                                                value={kat.id}
+                                                            >
+                                                                {kat.nama}
+                                                            </option>
+                                                        );
+                                                    }
+                                                )}
+                                            </select>
+                                            <div className="pointer-events-none absolute top-3 right-0 flex items-center px-2 text-gray-700">
+                                                <svg
+                                                    className="fill-current h-4 w-4"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 20 20"
+                                                >
+                                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </>
                                 }
                             >
                                 {allData.data.length > 0 ? (
@@ -412,7 +499,34 @@ export const Produk = () => {
                                                         {i + allData.from}
                                                     </th>
                                                     <td className="px-6 py-4 text-black">
+                                                        <img
+                                                            className="w-10 h-10 rounded-full"
+                                                            src={all.gambar}
+                                                            alt="Rounded avatar"
+                                                        />
+                                                    </td>
+                                                    <td className="px-6 py-4 text-black">
+                                                        {
+                                                            all
+                                                                .data_kategori_produk
+                                                                .nama
+                                                        }
+                                                    </td>
+                                                    <td className="px-6 py-4 text-black">
                                                         {all.nama}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-black">
+                                                        {rupiah(all.harga)}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-black">
+                                                        {all.stok}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-black">
+                                                        {all.data_diskon !==
+                                                        null
+                                                            ? all.data_diskon
+                                                                  .nama
+                                                            : "Tidak Ada"}
                                                     </td>
                                                     <td className="px-6 py-4 text-black">
                                                         <div>
@@ -438,7 +552,7 @@ export const Produk = () => {
                                     ) : (
                                         <tr className="bg-white border-b">
                                             <td
-                                                colSpan={3}
+                                                colSpan={8}
                                                 className="text-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
                                             >
                                                 <div className="flex w-full justify-center">
@@ -450,7 +564,7 @@ export const Produk = () => {
                                 ) : (
                                     <tr className="bg-white border-b">
                                         <td
-                                            colSpan={3}
+                                            colSpan={8}
                                             className="text-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
                                         >
                                             {loader == true ? (

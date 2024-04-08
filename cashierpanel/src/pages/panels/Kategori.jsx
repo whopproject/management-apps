@@ -22,7 +22,7 @@ export const Kategori = () => {
     const [reloadTable, setReloadTable] = useState(false);
     const [headerModal, setHeaderModal] = useState("");
     const [buttonPage, setButtonPage] = useState([]);
-    const [page, setPage] = useState(1);
+    let [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
     const [paginate, setPaginate] = useState(10);
     const [allData, setAllData] = useState({

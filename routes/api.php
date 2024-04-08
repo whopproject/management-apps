@@ -1,9 +1,12 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\Master\MasterDiskonController;
 use App\Http\Controllers\Api\Master\MasterKategoriProdukController;
 use App\Http\Controllers\Api\Master\MasterProdukController;
+use App\Http\Controllers\Api\Transaksi\TransaksiController;
+use App\Http\Controllers\Api\Transaksi\TransaksiPembelianController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,8 +29,9 @@ Route::post('login', [AuthController::class, 'login']);
 
 Route::middleware(('jwt'))->group(function () {
 
-    Route::group(['prefix' => 'data-master'], function () {
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 
+    Route::group(['prefix' => 'data-master'], function () {
         Route::group(['prefix' => 'kategori'], function () {
             Route::get('/', [MasterKategoriProdukController::class, 'index']);
             Route::post('/store', [MasterKategoriProdukController::class, 'store']);
@@ -39,20 +43,33 @@ Route::middleware(('jwt'))->group(function () {
         Route::group(['prefix' => 'produk'], function () {
             Route::get('/', [MasterProdukController::class, 'index']);
             Route::get('/create', [MasterProdukController::class, 'create']);
-            Route::get('/test/{id}', [MasterProdukController::class, 'test']);
+            Route::get('/test', [MasterProdukController::class, 'test']);
             Route::post('/store', [MasterProdukController::class, 'store']);
             Route::get('/edit/{id}', [MasterProdukController::class, 'edit']);
             Route::post('/update', [MasterProdukController::class, 'update']);
             Route::delete('/delete/{id}', [MasterProdukController::class, 'delete']);
         });
 
-        Route::group(['prefix' => 'diskon'], function () {
-            Route::get('/draft', [MasterDiskonController::class, 'index_draft']);
-            Route::get('/archived', [MasterDiskonController::class, 'index_archived']);
-            Route::get('/published', [MasterDiskonController::class, 'index_published']);
-            Route::post('/store', [MasterDiskonController::class, 'store']);
-            Route::put('/update/{id}', [MasterDiskonController::class, 'update']);
-            Route::delete('/delete/{id}', [MasterDiskonController::class, 'destroy']);
+        // Route::group(['prefix' => 'diskon'], function () {
+        //     Route::get('/draft', [MasterDiskonController::class, 'index_draft']);
+        //     Route::get('/archived', [MasterDiskonController::class, 'index_archived']);
+        //     Route::get('/published', [MasterDiskonController::class, 'index_published']);
+        //     Route::post('/store', [MasterDiskonController::class, 'store']);
+        //     Route::put('/update/{id}', [MasterDiskonController::class, 'update']);
+        //     Route::delete('/delete/{id}', [MasterDiskonController::class, 'destroy']);
+        // });
+    });
+
+    Route::group(['prefix' => 'transaksi'], function () {
+        Route::get('/produk', [TransaksiController::class, 'index']);
+        Route::get('/kategori', [TransaksiController::class, 'kategori']);
+
+        Route::group(['prefix' => 'pembelian'], function () {
+            Route::get('/', [TransaksiPembelianController::class, 'index']);
+            Route::post('/store', [TransaksiPembelianController::class, 'store']);
+            Route::get('/edit/{id}', [TransaksiPembelianController::class, 'edit']);
+            Route::post('/update', [TransaksiPembelianController::class, 'update']);
+            Route::delete('/delete/{id}', [TransaksiPembelianController::class, 'delete']);
         });
     });
 });

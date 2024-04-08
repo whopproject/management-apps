@@ -13,7 +13,7 @@ export const PanelLayout = ({ children }) => {
         <>
             <div className="hide-print flex flex-row h-screen antialiased text-blue-gray-800">
                 {/* left sidebar */}
-                <div className="flex flex-row w-auto flex-shrink-0 pl-4 pr-2 py-4">
+                <div className="flex flex-row w-auto h-full flex-shrink-0 pl-4 pr-2 py-4">
                     <div className="flex flex-col items-center py-4 flex-shrink-0 w-20 bg-cyan-500 rounded-3xl">
                         <a href="#">
                             <svg
@@ -30,7 +30,10 @@ export const PanelLayout = ({ children }) => {
                         </a>
                         <ul className="flex flex-col space-y-2 mt-24">
                             <li className="relative">
-                                <a href="#" className="flex items-center">
+                                <Link
+                                    to={"/panel/dashboard"}
+                                    className="flex items-center"
+                                >
                                     <span
                                         className={
                                             "flex items-center justify-center h-12 w-12 rounded-2xl " +
@@ -60,7 +63,7 @@ export const PanelLayout = ({ children }) => {
                                             />
                                         </svg>
                                     </span>
-                                </a>
+                                </Link>
                                 <div
                                     className={
                                         "z-20 top-1 left-14 " +

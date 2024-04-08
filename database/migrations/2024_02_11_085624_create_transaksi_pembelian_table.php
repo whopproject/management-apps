@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('transaksi_pembelian', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('nama');
-            $table->dateTime('tanggal');
+            $table->date('tanggal');
             $table->enum('jenis', ['Produk', 'Aset']);
             $table->integer('total_item');
             $table->bigInteger('total_harga');

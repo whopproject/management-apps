@@ -17,6 +17,11 @@ class MasterProduk extends Model
     protected $fillable = ['nama', 'harga', 'gambar', 'stok', 'id_kategori', 'id_diskon'];
     protected $primaryKey = 'id';
 
+    protected $casts = [
+        'harga' => 'integer',
+        'stok' => 'integer'
+    ];
+
     public function scopeSearch($query, $term)
     {
         $term = "%$term%";

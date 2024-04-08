@@ -1,9 +1,9 @@
 import { CartProduct } from "../../components/CartProduct";
 import { ProductCard } from "../../components/ProductCard";
 import { PanelLayout } from "../../layouts/PanelLayout";
-import $ from "jquery";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Cookies from "js-cookie";
 import "react-responsive-modal/styles.css";
 import { Modal } from "react-responsive-modal";
 import { ModalPrimary } from "../../components/ModalPrimary";
@@ -11,8 +11,7 @@ import CurrencyInput from "react-currency-input-field";
 import { Loader } from "../../components/Loader";
 
 export const Kasir = () => {
-    const [data, setData] = useState([]);
-    const [fetchStatus, setFetchStatus] = useState(true);
+    const [reloadTable, setReloadTable] = useState(true);
     const [cart, setCart] = useState([]);
     const [refreshCart, setRefreshCart] = useState(false);
     const [subTotal, setSubTotal] = useState(0);
@@ -23,8 +22,29 @@ export const Kasir = () => {
     const [kembalian, setKembalian] = useState(0);
     const [loader, setLoader] = useState(false);
 
+    const [kategoriProduk, setKategoriProduk] = useState([]);
+
+    const [allData, setAllData] = useState({
+        current_page: 1,
+        data: [],
+        first_page_url: "",
+        from: 1,
+        last_page: 1,
+        last_page_url: "",
+        links: "",
+        next_page_url: null,
+        path: "",
+        per_page: 10,
+        prev_page_url: null,
+        to: 2,
+        total: 1,
+    });
+
     const [total, setTotal] = useState(0);
-    const [kategori, setKategori] = useState([]);
+    const [kategori, setKategori] = useState("");
+
+    const [page, setPage] = useState(1);
+    const [search, setSearch] = useState("");
 
     // fetch pertama local storage
     useEffect(() => {
@@ -54,7 +74,7 @@ export const Kasir = () => {
     useEffect(() => {
         if (cart.length > 0) {
             const sum = cart.reduce((accumulator, value) => {
-                return accumulator + value.price;
+                return accumulator + value.harga;
             }, 0);
             setSubTotal(sum);
             setTotal(subTotal - totalDiskon);
@@ -65,7 +85,7 @@ export const Kasir = () => {
         }
     }, [cart, setCart, setSubTotal, subTotal]);
 
-    // parsing kembalian
+    // hitung kembalian
     useEffect(() => {
         if (pembayaran == undefined) {
             setPembayaran(0);
@@ -77,91 +97,128 @@ export const Kasir = () => {
         }
     }, [pembayaran, setPembayaran]);
 
-    useEffect(() => {
-        $("body").on("click", function () {
-            const details = document.querySelectorAll("details");
-            details.forEach((detail) => {
-                detail.removeAttribute("open");
-            });
-        });
-    });
-
     // fetch data produk
     useEffect(() => {
-        if (fetchStatus === true) {
-            setLoader(true);
-            axios
-                .get("https://fakestoreapi.com/products?limit=8")
-                .then((res) => {
-                    setData([...res.data]);
-                    setLoader(false);
-                })
-                .catch((error) => {
-                    console.log(error);
-                    setLoader(false);
+        setLoader(true);
+        setReloadTable(false);
+        axios
+            .get(
+                `${
+                    import.meta.env.VITE_ALL_BASE_URL
+                }/transaksi/produk?page=${page}&q=${search}&kategori=${kategori}`,
+                {
+                    headers: {
+                        Authorization: "Bearer " + Cookies.get("token"),
+                    },
+                }
+            )
+            .then((res) => {
+                setAllData({
+                    current_page: res.data.current_page,
+                    data: [...res.data.data],
+                    first_page_url: res.data.first_page_url,
+                    from: res.data.from,
+                    last_page: res.data.last_page,
+                    last_page_url: res.data.last_page_url,
+                    links: res.data.links,
+                    next_page_url: res.data.next_page_url,
+                    path: res.data.path,
+                    per_page: res.data.per_page,
+                    prev_page_url: res.data.prev_page_url,
+                    to: res.data.to,
+                    total: res.data.total,
                 });
-            setFetchStatus(false);
-        }
-    }, [fetchStatus, setFetchStatus]);
-
-    // untuk ngurangin stok produk jika sudah di cartaktif.
-    // useEffect(() => {
-
-    // })
+                setPage(res.data.current_page);
+                setLoader(false);
+            })
+            .catch((error) => {
+                if (error.response.status == 403) {
+                    Cookies.remove("token");
+                    navigate("/");
+                } else {
+                    alert(error.response.data.error);
+                }
+                setLoader(false);
+            });
+    }, [
+        page,
+        setPage,
+        search,
+        setSearch,
+        reloadTable,
+        setReloadTable,
+        kategori,
+        setKategori,
+    ]);
 
     //fetch kategori
     useEffect(() => {
         axios
-            .get("https://fakestoreapi.com/products/categories")
+            .get(`${import.meta.env.VITE_ALL_BASE_URL}/transaksi/kategori`, {
+                headers: {
+                    Authorization: "Bearer " + Cookies.get("token"),
+                },
+            })
             .then((res) => {
-                setKategori([...res.data]);
+                setKategoriProduk([...res.data]);
             })
             .catch((error) => {
-                console.log(error);
+                if (error.response.status == 403) {
+                    Cookies.remove("token");
+                    navigate("/");
+                } else {
+                    alert(error.response.data.error);
+                }
             });
     }, []);
 
     // tambah ke cart
     const addToCart = (index) => {
-        const dataProduk = data[index];
+        const dataProduk = allData.data[index];
         if (cart !== null) {
-            const checkcart = cart.filter(
-                (fill) => fill.id_produk == dataProduk.id
-            );
+            const checkcart = cart.filter((fill) => fill.id == dataProduk.id);
             if (checkcart.length > 0) {
-                setCart(
-                    cart.map((datacart) => {
-                        if (datacart.id_produk == dataProduk.id) {
-                            return {
-                                ...datacart,
-                                qty: datacart.qty + 1,
-                                price: datacart.price + dataProduk.price,
-                            };
-                        } else {
-                            return datacart;
-                        }
-                    })
-                );
+                if (dataProduk.stok > checkcart[0].stok) {
+                    setCart(
+                        cart.map((datacart) => {
+                            if (datacart.id == dataProduk.id) {
+                                return {
+                                    ...datacart,
+                                    stok: datacart.stok + 1,
+                                    harga: datacart.harga + dataProduk.harga,
+                                };
+                            } else {
+                                return datacart;
+                            }
+                        })
+                    );
+                } else {
+                    alert("Stok Barang Tidak Cukup");
+                }
             } else {
                 setCart([
                     ...cart,
                     {
-                        id_produk: dataProduk.id,
-                        image: dataProduk.image,
-                        title: dataProduk.title,
-                        qty: 1,
-                        price: dataProduk.price,
+                        id: dataProduk.id,
+                        gambar: dataProduk.gambar,
+                        nama: dataProduk.nama,
+                        stok: 1,
+                        harga: dataProduk.harga,
+                        id_kategori: dataProduk.id_kategori,
+                        id_diskon: dataProduk.id_diskon,
                     },
                 ]);
             }
         } else {
             setCart([
                 {
-                    id_produk: dataProduk.id,
-                    image: dataProduk.image,
-                    title: dataProduk.title,
-                    qty: 1,
-                    price: dataProduk.price,
+                    id: dataProduk.id,
+                    gambar: dataProduk.gambar,
+                    nama: dataProduk.nama,
+                    stok: 1,
+                    harga: dataProduk.harga,
+                    id_kategori: dataProduk.id_kategori,
+                    id_diskon: dataProduk.id_diskon,
                 },
             ]);
         }
@@ -170,15 +227,20 @@ export const Kasir = () => {
 
     // tambah qty produk
     const addQty = (id_produk) => {
-        const dataProduk = data.filter((fill) => fill.id == id_produk);
+        const dataProduk = allData.data.filter((fill) => fill.id == id_produk);
         setCart(
             cart.map((datacart) => {
-                if (datacart.id_produk == id_produk) {
-                    return {
-                        ...datacart,
-                        qty: datacart.qty + 1,
-                        price: datacart.price + dataProduk[0].price,
-                    };
+                if (datacart.id == id_produk) {
+                    if (dataProduk[0].stok > datacart.stok) {
+                        return {
+                            ...datacart,
+                            stok: datacart.stok + 1,
+                            harga: datacart.harga + dataProduk[0].harga,
+                        };
+                    } else {
+                        alert("Stok Barang Tidak Cukup");
+                        return datacart;
+                    }
                 } else {
                     return datacart;
                 }
@@ -189,14 +251,14 @@ export const Kasir = () => {
 
     // mengurangi qty produk
     const decQty = (id_produk) => {
-        const dataProduk = data.filter((fill) => fill.id == id_produk);
+        const dataProduk = allData.data.filter((fill) => fill.id == id_produk);
         setCart(
             cart.map((datacart) => {
-                if (datacart.id_produk == id_produk) {
+                if (datacart.id == id_produk) {
                     return {
                         ...datacart,
-                        qty: datacart.qty - 1,
-                        price: datacart.price - dataProduk[0].price,
+                        stok: datacart.stok - 1,
+                        harga: datacart.harga - dataProduk[0].harga,
                     };
                 } else {
                     return datacart;
@@ -208,7 +270,7 @@ export const Kasir = () => {
 
     // hapus produk dari cart
     const removeItemCart = (id_produk) => {
-        setCart(cart.filter((datacart) => datacart.id_produk !== id_produk));
+        setCart(cart.filter((datacart) => datacart.id !== id_produk));
         setRefreshCart(true);
     };
 
@@ -220,121 +282,72 @@ export const Kasir = () => {
                     <div className="flex flex-col bg-blue-gray-50 h-full w-full py-4">
                         <section>
                             <div className="px-4">
-                                <div className="mt-8 sm:flex sm:items-center sm:justify-between">
-                                    <div className="block sm:hidden">
-                                        <button className="flex cursor-pointer items-center gap-2 border-b border-gray-400 pb-1 text-gray-900 transition hover:border-gray-600">
-                                            <span className="text-sm font-medium">
-                                                {" "}
-                                                Filters &amp; Sorting{" "}
-                                            </span>
+                                <div className="mt-8 flex justify-end h-full">
+                                    <div className="relative">
+                                        <select
+                                            value={kategori}
+                                            onChange={(e) =>
+                                                setKategori(e.target.value)
+                                            }
+                                            className="h-full border block appearance-none w-full bg-white border-gray-300 text-gray-700 py-2 px-2 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                        >
+                                            <option value="">
+                                                Pilih Kategori
+                                            </option>
+                                            {kategoriProduk.map((kat, x) => {
+                                                return (
+                                                    <option
+                                                        key={x}
+                                                        value={kat.id}
+                                                    >
+                                                        {kat.nama}
+                                                    </option>
+                                                );
+                                            })}
+                                        </select>
+                                        <div className="pointer-events-none absolute top-3 right-0 flex items-center px-2 text-gray-700">
                                             <svg
+                                                className="fill-current h-4 w-4"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20"
+                                            >
+                                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
+                                            <svg
+                                                className="w-4 h-4 text-gray-500 "
+                                                aria-hidden="true"
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 fill="none"
-                                                viewBox="0 0 24 24"
-                                                strokeWidth="1.5"
-                                                stroke="currentColor"
-                                                className="size-4 rtl:rotate-180"
+                                                viewBox="0 0 20 20"
                                             >
                                                 <path
+                                                    stroke="currentColor"
                                                     strokeLinecap="round"
                                                     strokeLinejoin="round"
-                                                    d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                                                    strokeWidth={2}
+                                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
                                                 />
                                             </svg>
-                                        </button>
-                                    </div>
-                                    <div className="hidden sm:flex sm:gap-4">
-                                        <div className="relative">
-                                            <details className="group [&_summary::-webkit-details-marker]:hidden">
-                                                <summary className="flex cursor-pointer items-center gap-2 border-b border-gray-400 pb-1 text-gray-900 transition hover:border-gray-600">
-                                                    <span className="text-sm font-medium">
-                                                        Kategori
-                                                    </span>
-                                                    <span className="transition group-open:-rotate-180">
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            strokeWidth="1.5"
-                                                            stroke="currentColor"
-                                                            className="h-4 w-4"
-                                                        >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                                                            />
-                                                        </svg>
-                                                    </span>
-                                                </summary>
-                                                <div className="z-50 group-open:absolute group-open:top-auto group-open:mt-2 ltr:group-open:start-0">
-                                                    <div className="w-96 rounded border border-gray-200 bg-white">
-                                                        <header className="flex items-center justify-between p-4">
-                                                            <span className="text-sm text-gray-700">
-                                                                0 Selected
-                                                            </span>
-                                                            <button
-                                                                type="button"
-                                                                className="text-sm text-gray-900 underline underline-offset-4"
-                                                            >
-                                                                Reset
-                                                            </button>
-                                                        </header>
-                                                        <ul className="space-y-1 border-t border-gray-200 p-4">
-                                                            {kategori.map(
-                                                                (kat, i) => {
-                                                                    return (
-                                                                        <li
-                                                                            key={
-                                                                                i
-                                                                            }
-                                                                        >
-                                                                            <label
-                                                                                htmlFor="FilterInStock"
-                                                                                className="inline-flex items-center gap-2"
-                                                                            >
-                                                                                <input
-                                                                                    type="checkbox"
-                                                                                    id="FilterInStock"
-                                                                                    className="size-5 rounded border-gray-300"
-                                                                                />
-                                                                                <span className="text-sm font-medium text-gray-700">
-                                                                                    {
-                                                                                        kat
-                                                                                    }
-                                                                                </span>
-                                                                            </label>
-                                                                        </li>
-                                                                    );
-                                                                }
-                                                            )}
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </details>
                                         </div>
-                                    </div>
-                                    <div className="hidden sm:block w-96">
-                                        <label
-                                            htmlFor="default-search"
-                                            className="mb-2 text-sm font-medium text-gray-900 sr-only"
-                                        >
-                                            Search
-                                        </label>
-                                        <div className="relative">
-                                            <input
-                                                type="search"
-                                                id="default-search"
-                                                className="block w-full p-2 focus:outline-none max-sm:text-xs text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50"
-                                                placeholder="Cari Product ..."
-                                                required=""
-                                            />
-                                        </div>
+                                        <input
+                                            type="text"
+                                            id="table-search-users"
+                                            value={search}
+                                            onChange={(e) =>
+                                                setSearch(e.target.value)
+                                            }
+                                            className="block p-2 ps-10 text-sm text-gray-900 border border-gray-300 w-80 bg-white focus:outline-none"
+                                            placeholder="Cari Data..."
+                                        />
                                     </div>
                                 </div>
-                                {data.length > 0 ? (
+                                {allData.data.length > 0 ? (
                                     <ul className="mt-8 grid gap-4 sm:grid-cols-1 lg:grid-cols-4 ">
-                                        {data.map((produk, i) => {
+                                        {allData.data.map((produk, i) => {
                                             return (
                                                 <ProductCard
                                                     data={produk}
@@ -456,12 +469,12 @@ export const Kasir = () => {
                                                                             <button
                                                                                 type="button"
                                                                                 disabled={
-                                                                                    keranjang.qty <
+                                                                                    keranjang.stok <
                                                                                     2
                                                                                 }
                                                                                 onClick={() =>
                                                                                     decQty(
-                                                                                        keranjang.id_produk
+                                                                                        keranjang.id
                                                                                     )
                                                                                 }
                                                                                 className="size-10 leading-10 text-gray-600 transition hover:opacity-75"
@@ -474,7 +487,7 @@ export const Kasir = () => {
                                                                                     1
                                                                                 }
                                                                                 value={
-                                                                                    keranjang.qty
+                                                                                    keranjang.stok
                                                                                 }
                                                                                 disabled
                                                                                 id="Line3Qty"
@@ -484,7 +497,7 @@ export const Kasir = () => {
                                                                                 type="button"
                                                                                 onClick={() =>
                                                                                     addQty(
-                                                                                        keranjang.id_produk
+                                                                                        keranjang.id
                                                                                     )
                                                                                 }
                                                                                 className="size-10 leading-10 text-gray-600 transition hover:opacity-75"
@@ -495,7 +508,7 @@ export const Kasir = () => {
                                                                         <button
                                                                             onClick={() =>
                                                                                 removeItemCart(
-                                                                                    keranjang.id_produk
+                                                                                    keranjang.id
                                                                                 )
                                                                             }
                                                                             className="text-gray-600 transition hover:text-red-600"

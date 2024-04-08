@@ -11,18 +11,18 @@ export const CartProduct = ({ children, data }) => {
         <>
             <div className="flex items-center gap-2">
                 <img
-                    src={keranjang.image}
+                    src={keranjang.gambar}
                     alt=""
                     className="size-16 w-12 h-12 rounded-xl object-cover"
                 />
                 <div>
                     <h3 className="text-xs font-bold text-gray-900">
-                        {keranjang.title}
+                        {keranjang.nama}
                     </h3>
                     <dl className="mt-0.5 font-semibold space-y-px text-xs text-gray-600">
                         <div>
                             <dt className="inline">
-                                {rupiah(keranjang.price)}
+                                {rupiah(keranjang.harga)}
                             </dt>
                         </div>
                     </dl>
