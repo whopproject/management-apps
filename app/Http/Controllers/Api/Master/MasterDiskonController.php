@@ -5,46 +5,37 @@ namespace App\Http\Controllers\Api\Master;
 use App\Http\Controllers\Controller;
 use App\Models\Master\Diskon;
 use App\Models\Master\MasterDiskon;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 
 class MasterDiskonController extends Controller
 {
-    public function index_draft()
+    public function index()
     {
         $paginate = request('paginate', 10);
         $search_value = request('q', '');
+        $status = request('status', '');
+        $jenis = request('jenis', '');
+        $periode = request('periode', '');
         $diskon = MasterDiskon::with('dataProduk')
-            ->where('status', 'Draft')
+            ->when($periode == 'Aktif', function ($query) {
+                $query->where('tanggal_selesai', '>=', Carbon::now());
+            })
+            ->when($periode == 'Tidak Aktif', function ($query) {
+                $query->where('tanggal_selesai', '<', Carbon::now());
+            })
+            ->when($jenis, function ($query) use ($jenis) {
+                $query->where('jenis', $jenis);
+            })
+            ->when($status, function ($query) use ($status) {
+                $query->where('status', $status);
+            })
             ->orderBy('created_at', 'desc')
             ->search(trim($search_value))
             ->paginate($paginate);
-        return response()->json(['data' => $diskon], 200);
-    }
-
-    public function index_archived()
-    {
-        $paginate = request('paginate', 10);
-        $search_value = request('q', '');
-        $diskon = MasterDiskon::with('dataProduk')
-            ->where('status', 'Archived')
-            ->orderBy('created_at', 'desc')
-            ->search(trim($search_value))
-            ->paginate($paginate);
-        return response()->json(['data' => $diskon], 200);
-    }
-
-    public function index_published()
-    {
-        $paginate = request('paginate', 10);
-        $search_value = request('q', '');
-        $diskon = MasterDiskon::with('dataProduk')
-            ->where('status', 'Published')
-            ->orderBy('created_at', 'desc')
-            ->search(trim($search_value))
-            ->paginate($paginate);
-        return response()->json(['data' => $diskon], 200);
+        return response(json_encode($diskon), 200);
     }
 
     public function store(Request $request)
@@ -82,7 +73,13 @@ class MasterDiskonController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function edit($id)
+    {
+        $data = MasterDiskon::findOrFail($id);
+        return response(json_encode($data), 200);
+    }
+
+    public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:255',
@@ -100,7 +97,7 @@ class MasterDiskonController extends Controller
         try {
             DB::beginTransaction();
 
-            $masterdiskon = MasterDiskon::findOrFail($id);
+            $masterdiskon = MasterDiskon::findOrFail($request->id);
             $masterdiskon->nama = $request->nama;
             $masterdiskon->jenis = $request->jenis;
             $masterdiskon->potongan_harga = $request->potongan_harga;

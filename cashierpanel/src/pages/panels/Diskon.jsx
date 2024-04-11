@@ -12,27 +12,28 @@ import { ButtonEdit } from "../../components/ButtonEdit";
 import { ButtonDelete } from "../../components/ButtonDelete";
 import CurrencyInput from "react-currency-input-field";
 
-export const Pembelian = () => {
+export const Diskon = () => {
     let navigate = useNavigate();
-    const [modalPembelian, setModalPembelian] = useState(false);
-    const [pembelianForm, setPembelianForm] = useState({
+    const [modalDiskon, setModalDiskon] = useState(false);
+    const [diskonForm, setDiskonForm] = useState({
         id: 0,
         nama: "",
         jenis: "",
-        total_harga: 0,
-        tanggal: "",
-        total_item: "",
+        tanggal_mulai: "",
+        tanggal_selesai: "",
+        potongan_harga: "",
+        status: "",
     });
     const [loader, setLoader] = useState(false);
     const [reloadTable, setReloadTable] = useState(false);
     const [headerModal, setHeaderModal] = useState("");
     const [buttonPage, setButtonPage] = useState([]);
-    const [jenis, setJenis] = useState("");
     let [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
     const [paginate, setPaginate] = useState(10);
-    const [filterTanggalDari, setFilterTanggalDari] = useState("");
-    const [filterTanggalKe, setFilterTanggalKe] = useState("");
+    const [filterPeriode, setFilterPeriode] = useState("");
+    const [filterStatus, setFilterStatus] = useState("");
+    const [filterJenis, setFilterJenis] = useState("");
     const [allData, setAllData] = useState({
         current_page: 1,
         data: [],
@@ -49,40 +50,14 @@ export const Pembelian = () => {
         total: 1,
     });
 
-    const tanggal = (value) => {
-        return new Date(value).toLocaleString("id", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-        });
-    };
-
-    const rupiah = (number) => {
-        return new Intl.NumberFormat("id-ID", {
-            style: "currency",
-            currency: "IDR",
-            minimumFractionDigits: 0,
-        }).format(number);
-    };
-
     useEffect(() => {
         setLoader(true);
         setReloadTable(false);
-        if (filterTanggalDari == "" && filterTanggalKe !== "") {
-            setFilterTanggalKe(filterTanggalDari);
-        } else if (filterTanggalKe == "" && filterTanggalDari !== "") {
-            setFilterTanggalDari(filterTanggalKe);
-        } else if (filterTanggalDari > filterTanggalKe) {
-            let tanggalke = filterTanggalKe;
-            setFilterTanggalKe(filterTanggalDari);
-            setFilterTanggalDari(tanggalke);
-        }
         axios
             .get(
                 `${
                     import.meta.env.VITE_ALL_BASE_URL
-                }/transaksi/pembelian?page=${page}&q=${search}&paginate=${paginate}&jenis=${jenis}&daritanggal=${filterTanggalDari}&ketanggal=${filterTanggalKe}`,
+                }/data-master/diskon?page=${page}&q=${search}&paginate=${paginate}&status=${filterStatus}&periode=${filterPeriode}&jenis=${filterJenis}`,
                 {
                     headers: {
                         Authorization: "Bearer " + Cookies.get("token"),
@@ -126,8 +101,12 @@ export const Pembelian = () => {
         setSearch,
         reloadTable,
         setReloadTable,
-        jenis,
-        setJenis,
+        filterPeriode,
+        setFilterPeriode,
+        filterStatus,
+        setFilterStatus,
+        filterJenis,
+        setFilterJenis,
     ]);
 
     useEffect(() => {
@@ -139,17 +118,18 @@ export const Pembelian = () => {
     }, [allData, setAllData]);
 
     useEffect(() => {
-        if (modalPembelian == false) {
-            setPembelianForm({
+        if (modalDiskon == false) {
+            setDiskonForm({
                 id: 0,
                 nama: "",
                 jenis: "",
-                total_harga: 0,
-                tanggal: "",
-                total_item: "",
+                tanggal_mulai: "",
+                tanggal_selesai: "",
+                potongan_harga: "",
+                status: "",
             });
         }
-    }, [modalPembelian, setModalPembelian]);
+    }, [modalDiskon, setModalDiskon]);
 
     const handlerSubmit = (e) => {
         e.preventDefault();
@@ -169,13 +149,13 @@ export const Pembelian = () => {
                         Swal.showLoading();
                     },
                 });
-                if (pembelianForm.id == 0) {
+                if (diskonForm.id == 0) {
                     axios
                         .post(
                             `${
                                 import.meta.env.VITE_ALL_BASE_URL
-                            }/transaksi/pembelian/store`,
-                            pembelianForm,
+                            }/data-master/diskon/store`,
+                            diskonForm,
                             {
                                 headers: {
                                     Authorization:
@@ -185,7 +165,7 @@ export const Pembelian = () => {
                         )
                         .then((res) => {
                             setReloadTable(true);
-                            setModalPembelian(false);
+                            setModalDiskon(false);
                             Swal.fire({
                                 title: "Success!",
                                 text: "Data Berhasil Ditambahkan.",
@@ -209,8 +189,8 @@ export const Pembelian = () => {
                         .post(
                             `${
                                 import.meta.env.VITE_ALL_BASE_URL
-                            }/transaksi/pembelian/update`,
-                            pembelianForm,
+                            }/data-master/diskon/update`,
+                            diskonForm,
                             {
                                 headers: {
                                     Authorization:
@@ -220,7 +200,7 @@ export const Pembelian = () => {
                         )
                         .then((res) => {
                             setReloadTable(true);
-                            setModalPembelian(false);
+                            setModalDiskon(false);
                             Swal.fire({
                                 title: "Success!",
                                 text: "Data Berhasil Ditambahkan.",
@@ -249,7 +229,7 @@ export const Pembelian = () => {
             .get(
                 `${
                     import.meta.env.VITE_ALL_BASE_URL
-                }/transaksi/pembelian/edit/${id}`,
+                }/data-master/diskon/edit/${id}`,
                 {
                     headers: {
                         Authorization: "Bearer " + Cookies.get("token"),
@@ -257,16 +237,17 @@ export const Pembelian = () => {
                 }
             )
             .then((res) => {
-                setPembelianForm({
+                setDiskonForm({
                     id: res.data.id,
                     nama: res.data.nama,
                     jenis: res.data.jenis,
-                    total_harga: res.data.total_harga,
-                    tanggal: res.data.tanggal,
-                    total_item: res.data.total_item,
+                    tanggal_mulai: res.data.tanggal_mulai,
+                    tanggal_selesai: res.data.tanggal_selesai,
+                    potongan_harga: res.data.potongan_harga,
+                    status: res.data.status,
                 });
                 setHeaderModal("Edit Data");
-                setModalPembelian(true);
+                setModalDiskon(true);
             })
             .catch((error) => {
                 if (error.response.status == 403) {
@@ -299,7 +280,7 @@ export const Pembelian = () => {
                     .delete(
                         `${
                             import.meta.env.VITE_ALL_BASE_URL
-                        }/transaksi/pembelian/delete/${id}`,
+                        }/data-master/diskon/delete/${id}`,
                         {
                             headers: {
                                 Authorization: "Bearer " + Cookies.get("token"),
@@ -330,6 +311,22 @@ export const Pembelian = () => {
         });
     };
 
+    const tanggal = (value) => {
+        return new Date(value).toLocaleString("id", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+    };
+
+    const rupiah = (number) => {
+        return new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+        }).format(number);
+    };
+
     return (
         <>
             <PanelLayout>
@@ -338,97 +335,109 @@ export const Pembelian = () => {
                         <div className="relative overflow-x-auto shadow-xl sm:rounded-lg">
                             <TableData
                                 head={[
-                                    "Tanggal",
                                     "Nama",
+                                    "Periode",
+                                    "Aktif/Tidak Aktif",
+                                    "Potongan Harga",
                                     "Jenis",
-                                    "Total Item",
-                                    "Total Harga",
+                                    "Status",
                                     "Aksi",
                                 ]}
-                                label={"Pembelian"}
+                                label={"Diskon"}
                                 filter={
                                     <>
-                                        <div className="flex me-4">
-                                            <p className="m-auto mx-1 text-sm font-semibold">
-                                                Dari
-                                            </p>
-                                            <div className="relative">
-                                                <input
-                                                    type="date"
-                                                    id="tanggal"
-                                                    value={filterTanggalDari}
-                                                    onChange={(e) =>
-                                                        setFilterTanggalDari(
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    className="h-full border block appearance-none w-full bg-white border-gray-300 text-gray-700 py-2 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                                    placeholder="Tanggal.."
-                                                />
-                                            </div>
-                                            <p className="m-auto mx-1 text-sm font-semibold">
-                                                Ke
-                                            </p>
-                                            <div className="relative">
-                                                <input
-                                                    type="date"
-                                                    id="tanggal"
-                                                    value={filterTanggalKe}
-                                                    onChange={(e) =>
-                                                        setFilterTanggalKe(
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    className="h-full border block appearance-none w-full bg-white border-gray-300 text-gray-700 py-2 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                                    placeholder="Tanggal.."
-                                                />
-                                            </div>
-                                            <button
-                                                className="m-auto px-1"
-                                                type="button"
-                                                onClick={() => {
-                                                    setReloadTable(true);
-                                                }}
+                                        <div className="relative">
+                                            <select
+                                                value={filterStatus}
+                                                onChange={(e) =>
+                                                    setFilterStatus(
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className="h-full border block appearance-none w-full bg-white border-gray-300 text-gray-700 py-2 px-2 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                             >
+                                                <option value="">
+                                                    Pilih Status
+                                                </option>
+                                                <option value="Published">
+                                                    Published
+                                                </option>
+                                                <option value="Archived">
+                                                    Archived
+                                                </option>
+                                                <option value="Draft">
+                                                    Draft
+                                                </option>
+                                            </select>
+                                            <div className="pointer-events-none absolute top-3 right-0 flex items-center px-2 text-gray-700">
                                                 <svg
+                                                    className="fill-current h-4 w-4"
                                                     xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                    strokeWidth="1.5"
-                                                    stroke="currentColor"
-                                                    className="w-6 h-6 bg-green-600 text-white rounded-full"
+                                                    viewBox="0 0 20 20"
                                                 >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                                    />
+                                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
                                                 </svg>
-                                            </button>
-                                            <button
-                                                className="m-auto px-1"
-                                                type="button"
-                                                onClick={() => {
-                                                    setFilterTanggalDari("");
-                                                    setFilterTanggalKe("");
-                                                    setReloadTable(true);
-                                                }}
+                                            </div>
+                                        </div>
+                                        <div className="relative">
+                                            <select
+                                                value={filterPeriode}
+                                                onChange={(e) =>
+                                                    setFilterPeriode(
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className="h-full border block appearance-none w-full bg-white border-gray-300 text-gray-700 py-2 px-2 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                             >
+                                                <option value="">
+                                                    Pilih Periode
+                                                </option>
+                                                <option value="Aktif">
+                                                    Periode Aktif
+                                                </option>
+                                                <option value="Tidak Aktif">
+                                                    Periode TIdak Aktif
+                                                </option>
+                                            </select>
+                                            <div className="pointer-events-none absolute top-3 right-0 flex items-center px-2 text-gray-700">
                                                 <svg
+                                                    className="fill-current h-4 w-4"
                                                     xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                    strokeWidth="1.5"
-                                                    stroke="currentColor"
-                                                    className="w-6 h-6 bg-red-600 text-white rounded-full"
+                                                    viewBox="0 0 20 20"
                                                 >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                                    />
+                                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
                                                 </svg>
-                                            </button>
+                                            </div>
+                                        </div>
+                                        <div className="relative">
+                                            <select
+                                                value={filterJenis}
+                                                onChange={(e) =>
+                                                    setFilterJenis(
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className="h-full border block appearance-none w-full bg-white border-gray-300 text-gray-700 py-2 px-2 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                            >
+                                                <option value="">
+                                                    Pilih Jenis
+                                                </option>
+                                                <option value="Produk">
+                                                    Produk
+                                                </option>
+                                                <option value="Transaksi">
+                                                    Transaksi
+                                                </option>
+                                            </select>
+                                            <div className="pointer-events-none absolute top-3 right-0 flex items-center px-2 text-gray-700">
+                                                <svg
+                                                    className="fill-current h-4 w-4"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 20 20"
+                                                >
+                                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                                </svg>
+                                            </div>
                                         </div>
                                     </>
                                 }
@@ -440,7 +449,7 @@ export const Pembelian = () => {
                                 changeSearch={(e) => setSearch(e.target.value)}
                                 buttonModal={() => {
                                     setHeaderModal("Tambah Data");
-                                    setModalPembelian(true);
+                                    setModalDiskon(true);
                                 }}
                             >
                                 {allData.data.length > 0 ? (
@@ -458,21 +467,37 @@ export const Pembelian = () => {
                                                         {i + allData.from}
                                                     </th>
                                                     <td className="px-6 py-4 text-black">
-                                                        {tanggal(all.tanggal)}
+                                                        {all.nama}
                                                     </td>
                                                     <td className="px-6 py-4 text-black">
-                                                        {all.nama}
+                                                        {tanggal(
+                                                            all.tanggal_mulai
+                                                        )}{" "}
+                                                        s/d{" "}
+                                                        {tanggal(
+                                                            all.tanggal_selesai
+                                                        )}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-black">
+                                                        {new Date(
+                                                            all.tanggal_selesai
+                                                        ).getTime() >=
+                                                            new Date().getTime() ||
+                                                        all.status ==
+                                                            "Published"
+                                                            ? "Aktif"
+                                                            : "Tidak Aktif"}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-black">
+                                                        {rupiah(
+                                                            all.potongan_harga
+                                                        )}
                                                     </td>
                                                     <td className="px-6 py-4 text-black">
                                                         {all.jenis}
                                                     </td>
                                                     <td className="px-6 py-4 text-black">
-                                                        {all.total_item}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-black">
-                                                        {rupiah(
-                                                            all.total_harga
-                                                        )}
+                                                        {all.status}
                                                     </td>
                                                     <td className="px-6 py-4 text-black">
                                                         <div>
@@ -558,48 +583,94 @@ export const Pembelian = () => {
                 </div>
                 <ModalPrimary
                     header={headerModal}
-                    open={modalPembelian}
+                    open={modalDiskon}
                     submitAction={handlerSubmit}
-                    closeModal={() => setModalPembelian(false)}
+                    closeModal={() => setModalDiskon(false)}
                 >
-                    <div className="w-full text-black">
-                        <label
-                            htmlFor="nama"
-                            className="block mb-2 text-sm font-medium text-gray-900"
-                        >
-                            Nama
-                        </label>
-                        <input
-                            type="text"
-                            id="nama"
-                            value={pembelianForm.nama}
-                            onChange={(e) =>
-                                setPembelianForm({
-                                    ...pembelianForm,
-                                    nama: e.target.value,
-                                })
-                            }
-                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
-                            placeholder="Nama.."
-                            required
-                        />
-                    </div>
                     <div className="grid grid-cols-2 gap-4 w-full">
                         <div className="w-full text-black">
                             <label
-                                htmlFor="tanggal"
+                                htmlFor="nama"
                                 className="block mb-2 text-sm font-medium text-gray-900"
                             >
-                                Tanggal
+                                Nama Diskon
+                            </label>
+                            <input
+                                type="text"
+                                id="nama"
+                                value={diskonForm.nama}
+                                onChange={(e) =>
+                                    setDiskonForm({
+                                        ...diskonForm,
+                                        nama: e.target.value,
+                                    })
+                                }
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                                placeholder="Nama Diskon.."
+                                required
+                            />
+                        </div>
+                        <div className="w-full text-black">
+                            <label
+                                htmlFor="potonganharga"
+                                className="block mb-2 text-sm font-medium text-gray-900"
+                            >
+                                Total Harga
+                            </label>
+                            <CurrencyInput
+                                id="potonganharga"
+                                name="potonganharga"
+                                placeholder="Potongan Harga.."
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                                defaultValue={0}
+                                value={diskonForm.potongan_harga}
+                                required
+                                onValueChange={(value) =>
+                                    setDiskonForm({
+                                        ...diskonForm,
+                                        potongan_harga: value,
+                                    })
+                                }
+                                prefix="Rp. "
+                            />
+                        </div>
+                        <div className="w-full text-black">
+                            <label
+                                htmlFor="tanggal_mulai"
+                                className="block mb-2 text-sm font-medium text-gray-900"
+                            >
+                                Mulai Dari
                             </label>
                             <input
                                 type="date"
-                                id="tanggal"
-                                value={pembelianForm.tanggal}
+                                id="tanggal_mulai"
+                                value={diskonForm.tanggal_mulai}
                                 onChange={(e) =>
-                                    setPembelianForm({
-                                        ...pembelianForm,
-                                        tanggal: e.target.value,
+                                    setDiskonForm({
+                                        ...diskonForm,
+                                        tanggal_mulai: e.target.value,
+                                    })
+                                }
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                                placeholder="Tanggal.."
+                                required
+                            />
+                        </div>
+                        <div className="w-full text-black">
+                            <label
+                                htmlFor="tanggal_selesai"
+                                className="block mb-2 text-sm font-medium text-gray-900"
+                            >
+                                Sampai Dengan
+                            </label>
+                            <input
+                                type="date"
+                                id="tanggal_selesai"
+                                value={diskonForm.tanggal_selesai}
+                                onChange={(e) =>
+                                    setDiskonForm({
+                                        ...diskonForm,
+                                        tanggal_selesai: e.target.value,
                                     })
                                 }
                                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
@@ -615,11 +686,11 @@ export const Pembelian = () => {
                                 Jenis
                             </label>
                             <select
-                                value={pembelianForm.jenis}
+                                value={diskonForm.jenis}
                                 id="jenis"
                                 onChange={(e) =>
-                                    setPembelianForm({
-                                        ...pembelianForm,
+                                    setDiskonForm({
+                                        ...diskonForm,
                                         jenis: e.target.value,
                                     })
                                 }
@@ -628,55 +699,33 @@ export const Pembelian = () => {
                             >
                                 <option value="">Pilih Jenis</option>
                                 <option value="Produk">Produk</option>
-                                <option value="Aset">Aset</option>
+                                <option value="Transaksi">Transaksi</option>
                             </select>
                         </div>
                         <div className="w-full text-black">
                             <label
-                                htmlFor="total_item"
+                                htmlFor="status"
                                 className="block mb-2 text-sm font-medium text-gray-900"
                             >
-                                Total Item
+                                Status
                             </label>
-                            <input
-                                type="number"
-                                min={1}
-                                id="total_item"
-                                value={pembelianForm.total_item}
+                            <select
+                                value={diskonForm.status}
+                                id="status"
                                 onChange={(e) =>
-                                    setPembelianForm({
-                                        ...pembelianForm,
-                                        total_item: e.target.value,
+                                    setDiskonForm({
+                                        ...diskonForm,
+                                        status: e.target.value,
                                     })
                                 }
                                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
-                                placeholder="Total Item.."
                                 required
-                            />
-                        </div>
-                        <div className="w-full text-black">
-                            <label
-                                htmlFor="total_harga"
-                                className="block mb-2 text-sm font-medium text-gray-900"
                             >
-                                Total Harga
-                            </label>
-                            <CurrencyInput
-                                id="total_harga"
-                                name="total_harga"
-                                placeholder="Total Harga.."
-                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
-                                defaultValue={0}
-                                value={pembelianForm.total_harga}
-                                required
-                                onValueChange={(value) =>
-                                    setPembelianForm({
-                                        ...pembelianForm,
-                                        total_harga: value,
-                                    })
-                                }
-                                prefix="Rp. "
-                            />
+                                <option value="">Pilih Status</option>
+                                <option value="Published">Published</option>
+                                <option value="Archived">Archived</option>
+                                <option value="Draft">Draft</option>
+                            </select>
                         </div>
                     </div>
                 </ModalPrimary>

@@ -5,12 +5,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import "react-responsive-modal/styles.css";
-import { Modal } from "react-responsive-modal";
 import { ModalPrimary } from "../../components/ModalPrimary";
 import CurrencyInput from "react-currency-input-field";
 import { Loader } from "../../components/Loader";
+import { useNavigate } from "react-router-dom";
 
 export const Kasir = () => {
+    let navigate = useNavigate();
     const [reloadTable, setReloadTable] = useState(true);
     const [cart, setCart] = useState([]);
     const [refreshCart, setRefreshCart] = useState(false);
@@ -51,6 +52,16 @@ export const Kasir = () => {
         const local = JSON.parse(localStorage.getItem("cartaktif"));
         if (local) {
             setCart(local);
+            const localDiskon = local.filter((dis) => dis.data_diskon !== null);
+            if (localDiskon.length > 0) {
+                localDiskon.map((element) => {
+                    if (element.data_diskon !== null) {
+                        setTotalDiskon(
+                            totalDiskon + element.data_diskon.potongan_harga
+                        );
+                    }
+                });
+            }
         }
     }, []);
 
@@ -81,9 +92,8 @@ export const Kasir = () => {
         } else {
             setSubTotal(0);
             setTotal(0);
-            setTotalDiskon(0);
         }
-    }, [cart, setCart, setSubTotal, subTotal]);
+    }, [cart, setCart, setSubTotal, subTotal, totalDiskon, setTotalDiskon]);
 
     // hitung kembalian
     useEffect(() => {
@@ -178,13 +188,13 @@ export const Kasir = () => {
         if (cart !== null) {
             const checkcart = cart.filter((fill) => fill.id == dataProduk.id);
             if (checkcart.length > 0) {
-                if (dataProduk.stok > checkcart[0].stok) {
+                if (dataProduk.stok > checkcart[0].qty) {
                     setCart(
                         cart.map((datacart) => {
                             if (datacart.id == dataProduk.id) {
                                 return {
                                     ...datacart,
-                                    stok: datacart.stok + 1,
+                                    qty: datacart.qty + 1,
                                     harga: datacart.harga + dataProduk.harga,
                                 };
                             } else {
@@ -202,10 +212,10 @@ export const Kasir = () => {
                         id: dataProduk.id,
                         gambar: dataProduk.gambar,
                         nama: dataProduk.nama,
-                        stok: 1,
+                        qty: 1,
                         harga: dataProduk.harga,
                         id_kategori: dataProduk.id_kategori,
-                        id_diskon: dataProduk.id_diskon,
+                        data_diskon: dataProduk.data_diskon,
                     },
                 ]);
             }
@@ -215,12 +225,16 @@ export const Kasir = () => {
                     id: dataProduk.id,
                     gambar: dataProduk.gambar,
                     nama: dataProduk.nama,
-                    stok: 1,
+                    qty: 1,
                     harga: dataProduk.harga,
                     id_kategori: dataProduk.id_kategori,
-                    id_diskon: dataProduk.id_diskon,
+                    data_diskon: dataProduk.data_diskon,
                 },
             ]);
+        }
+
+        if (dataProduk.data_diskon !== null) {
+            setTotalDiskon(totalDiskon + dataProduk.data_diskon.potongan_harga);
         }
         setRefreshCart(true);
     };
@@ -231,10 +245,16 @@ export const Kasir = () => {
         setCart(
             cart.map((datacart) => {
                 if (datacart.id == id_produk) {
-                    if (dataProduk[0].stok > datacart.stok) {
+                    if (dataProduk[0].stok > datacart.qty) {
+                        if (datacart.data_diskon !== null) {
+                            setTotalDiskon(
+                                totalDiskon +
+                                    dataProduk[0].data_diskon.potongan_harga
+                            );
+                        }
                         return {
                             ...datacart,
-                            stok: datacart.stok + 1,
+                            qty: datacart.qty + 1,
                             harga: datacart.harga + dataProduk[0].harga,
                         };
                     } else {
@@ -255,9 +275,15 @@ export const Kasir = () => {
         setCart(
             cart.map((datacart) => {
                 if (datacart.id == id_produk) {
+                    if (datacart.data_diskon !== null) {
+                        setTotalDiskon(
+                            totalDiskon -
+                                dataProduk[0].data_diskon.potongan_harga
+                        );
+                    }
                     return {
                         ...datacart,
-                        stok: datacart.stok - 1,
+                        qty: datacart.qty - 1,
                         harga: datacart.harga - dataProduk[0].harga,
                     };
                 } else {
@@ -270,6 +296,15 @@ export const Kasir = () => {
 
     // hapus produk dari cart
     const removeItemCart = (id_produk) => {
+        let cartdiskon = cart.filter(
+            (data) => data.id == id_produk && data.data_diskon !== null
+        );
+        if (cartdiskon.length > 0) {
+            setTotalDiskon(
+                totalDiskon -
+                    cartdiskon[0].data_diskon.potongan_harga * cartdiskon[0].qty
+            );
+        }
         setCart(cart.filter((datacart) => datacart.id !== id_produk));
         setRefreshCart(true);
     };
@@ -345,7 +380,7 @@ export const Kasir = () => {
                                         />
                                     </div>
                                 </div>
-                                {allData.data.length > 0 ? (
+                                {allData.data.length > 0 && loader == false ? (
                                     <ul className="mt-8 grid gap-4 sm:grid-cols-1 lg:grid-cols-4 ">
                                         {allData.data.map((produk, i) => {
                                             return (
@@ -419,7 +454,9 @@ export const Kasir = () => {
                                     </ol>
                                     <div className="flex justify-end my-auto gap-1">
                                         <div className="text-sm text-gray-700 font-normal my-auto">
-                                            Menampilkan 10 Dari 25 Data
+                                            Menampilkan {allData.from}-
+                                            {allData.to} Dari {allData.total}{" "}
+                                            Data
                                         </div>
                                     </div>
                                 </div>
@@ -469,7 +506,7 @@ export const Kasir = () => {
                                                                             <button
                                                                                 type="button"
                                                                                 disabled={
-                                                                                    keranjang.stok <
+                                                                                    keranjang.qty <
                                                                                     2
                                                                                 }
                                                                                 onClick={() =>
@@ -487,7 +524,7 @@ export const Kasir = () => {
                                                                                     1
                                                                                 }
                                                                                 value={
-                                                                                    keranjang.stok
+                                                                                    keranjang.qty
                                                                                 }
                                                                                 disabled
                                                                                 id="Line3Qty"

@@ -8,6 +8,7 @@ export const PanelLayout = ({ children }) => {
     const [hoverProduct, setHoverProduct] = useState(false);
     const [hoverProfile, setHoverProfile] = useState(false);
     const [hoverPembelian, setHoverPembelian] = useState(false);
+    const [hoverDiskon, setHoverDiskon] = useState(false);
 
     return (
         <>
@@ -268,6 +269,56 @@ export const PanelLayout = ({ children }) => {
                                     <div className="flex items-center flex-row-reverse mb-4">
                                         <div className="bg-cyan-200 inline-flex shadow-2xl items-center justify-center font-bold text-sm w-full text-center rounded-2xl text-black p-3 relative">
                                             <div>Pembelian</div>
+                                            <div className="absolute left-0 top-1/2 rounded-bl-full transform -translate-x-1/2 -rotate-45 w-3 h-2 bg-cyan-200" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li className="relative">
+                                <Link
+                                    to={"/panel/diskon"}
+                                    className="flex items-center"
+                                >
+                                    <span
+                                        className={
+                                            "flex items-center justify-center h-12 w-12 rounded-2xl " +
+                                            (location.pathname ==
+                                            "/panel/diskon"
+                                                ? "text-black bg-cyan-200 hover:bg-cyan-700"
+                                                : "text-black bg-white hover:bg-cyan-400")
+                                        }
+                                        onMouseEnter={() =>
+                                            setHoverDiskon(true)
+                                        }
+                                        onMouseLeave={() =>
+                                            setHoverDiskon(false)
+                                        }
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            strokeWidth="1.5"
+                                            stroke="currentColor"
+                                            className="w-6 h-6"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"
+                                            />
+                                        </svg>
+                                    </span>
+                                </Link>
+                                <div
+                                    className={
+                                        "z-20 top-1 left-14 " +
+                                        (hoverDiskon ? "absolute" : "hidden")
+                                    }
+                                >
+                                    <div className="flex items-center flex-row-reverse mb-4">
+                                        <div className="bg-cyan-200 inline-flex shadow-2xl items-center justify-center font-bold text-sm w-full text-center rounded-2xl text-black p-3 relative">
+                                            <div>Diskon</div>
                                             <div className="absolute left-0 top-1/2 rounded-bl-full transform -translate-x-1/2 -rotate-45 w-3 h-2 bg-cyan-200" />
                                         </div>
                                     </div>

@@ -16,6 +16,10 @@ class MasterDiskon extends Model
     protected $fillable = ['nama', 'jenis', 'tanggal_mulai', 'tanggal_selesai', 'potongan_harga', 'status'];
     protected $primaryKey = 'id';
 
+    protected $casts = [
+        'potongan_harga' => 'integer',
+    ];
+
     public function scopeSearch($query, $term)
     {
         $term = "%$term%";

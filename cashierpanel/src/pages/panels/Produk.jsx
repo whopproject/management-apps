@@ -371,7 +371,8 @@ export const Produk = () => {
                                     "Nama",
                                     "Harga",
                                     "Stok",
-                                    "Diskon",
+                                    "Potongan Diskon",
+                                    "Diskon Aktif/Tidak Aktif",
                                     "Aksi",
                                 ]}
                                 label={"Produk"}
@@ -431,10 +432,13 @@ export const Produk = () => {
                                                 className="h-full border block appearance-none w-full bg-white border-gray-300 text-gray-700 py-2 px-2 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                             >
                                                 <option value="">
-                                                    Tidak Diskon
+                                                    Filter Diskon
                                                 </option>
-                                                <option value="True">
-                                                    Diskon
+                                                <option value="Aktif">
+                                                    Diskon Aktif
+                                                </option>
+                                                <option value="Tidak Aktif">
+                                                    Diskon Tidak Aktif
                                                 </option>
                                             </select>
                                             <div className="pointer-events-none absolute top-3 right-0 flex items-center px-2 text-gray-700">
@@ -524,9 +528,26 @@ export const Produk = () => {
                                                     <td className="px-6 py-4 text-black">
                                                         {all.data_diskon !==
                                                         null
-                                                            ? all.data_diskon
-                                                                  .nama
+                                                            ? rupiah(
+                                                                  all
+                                                                      .data_diskon
+                                                                      .potongan_harga
+                                                              )
                                                             : "Tidak Ada"}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-black">
+                                                        {all.data_diskon !==
+                                                        null
+                                                            ? new Date(
+                                                                  all.data_diskon.tanggal_selesai
+                                                              ).getTime() <
+                                                                  new Date().getTime() ||
+                                                              all.data_diskon
+                                                                  .status !==
+                                                                  "Published"
+                                                                ? "Tidak Aktif"
+                                                                : "Aktif"
+                                                            : "Tidak Aktif"}
                                                     </td>
                                                     <td className="px-6 py-4 text-black">
                                                         <div>

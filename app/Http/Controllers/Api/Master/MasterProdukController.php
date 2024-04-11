@@ -7,6 +7,7 @@ use App\Models\Master\MasterDiskon;
 use App\Models\Master\MasterKategoriProduk;
 use App\Models\Master\MasterProduk;
 use App\Models\Master\Produk;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -28,11 +29,22 @@ class MasterProdukController extends Controller
             ->when($id_kategori, function ($query) use ($id_kategori) {
                 $query->where('id_kategori', $id_kategori);
             })
+            ->when($diskon == 'Aktif', function ($q) {
+                $q->whereHas('dataDiskon', function ($q) {
+                    $q->where('status', 'Published')
+                        ->where('jenis', 'Produk')
+                        ->where('tanggal_selesai', '>=', Carbon::now());
+                });
+            })
+            ->when($diskon == 'Tidak Aktif', function ($q) {
+                $q->doesntHave('dataDiskon', 'or')->orWhereHas('dataDiskon', function ($q) {
+                    $q->where('jenis', 'Produk')->where(function ($w) {
+                        $w->where('status', '!=', 'Published')
+                            ->orWhere('tanggal_selesai', '<', Carbon::now());
+                    });
+                });
+            })
             ->search(trim($search_value));
-
-        if ($diskon !== '') {
-            $produk = $produk->whereHas('dataDiskon');
-        }
 
         if ($stok !== '') {
             if (str_contains($stok, '-')) {
@@ -49,7 +61,10 @@ class MasterProdukController extends Controller
     public function create()
     {
         $kategori = MasterKategoriProduk::get();
-        $diskon = MasterDiskon::get();
+        $diskon = MasterDiskon::where('status', 'Published')
+            ->where('tanggal_selesai', '>', Carbon::now())
+            ->where('jenis', 'Produk')
+            ->get();
         return response()->json(compact('kategori', 'diskon'), 200);
     }
 
@@ -101,14 +116,14 @@ class MasterProdukController extends Controller
         }
     }
 
-    public function test(Request $request)
-    {
-        $master = MasterProduk::get();
-        $data = $request->stok;
-        $filename = explode('-', $data);
-        $master = $master->whereBetween('stok', $filename);
-        dd($master);
-    }
+    // public function test(Request $request)
+    // {
+    //     $master = MasterProduk::get();
+    //     $data = $request->stok;
+    //     $filename = explode('-', $data);
+    //     $master = $master->whereBetween('stok', $filename);
+    //     dd($master);
+    // }
 
     public function update(Request $request)
     {

@@ -11,8 +11,7 @@ import { Kategori } from "./pages/panels/Kategori";
 import { Produk } from "./pages/panels/Produk";
 import { Pembelian } from "./pages/panels/Pembelian";
 import { Dashboard } from "./pages/panels/Dashboard";
-// import ErrorPage from "./ErrorPage";
-// import Edit from "./Pages/Profile/Edit";
+import { Diskon } from "./pages/panels/Diskon";
 import {} from "react-router-dom";
 
 const ErrorPage = () => {
@@ -83,6 +82,14 @@ function App() {
                         element={
                             <AdminRoute>
                                 <Pembelian></Pembelian>
+                            </AdminRoute>
+                        }
+                    ></Route>
+                    <Route
+                        path="/panel/diskon"
+                        element={
+                            <AdminRoute>
+                                <Diskon></Diskon>
                             </AdminRoute>
                         }
                     ></Route>

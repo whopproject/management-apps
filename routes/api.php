@@ -43,21 +43,20 @@ Route::middleware(('jwt'))->group(function () {
         Route::group(['prefix' => 'produk'], function () {
             Route::get('/', [MasterProdukController::class, 'index']);
             Route::get('/create', [MasterProdukController::class, 'create']);
-            Route::get('/test', [MasterProdukController::class, 'test']);
+            // Route::get('/test', [MasterProdukController::class, 'test']);
             Route::post('/store', [MasterProdukController::class, 'store']);
             Route::get('/edit/{id}', [MasterProdukController::class, 'edit']);
             Route::post('/update', [MasterProdukController::class, 'update']);
             Route::delete('/delete/{id}', [MasterProdukController::class, 'delete']);
         });
 
-        // Route::group(['prefix' => 'diskon'], function () {
-        //     Route::get('/draft', [MasterDiskonController::class, 'index_draft']);
-        //     Route::get('/archived', [MasterDiskonController::class, 'index_archived']);
-        //     Route::get('/published', [MasterDiskonController::class, 'index_published']);
-        //     Route::post('/store', [MasterDiskonController::class, 'store']);
-        //     Route::put('/update/{id}', [MasterDiskonController::class, 'update']);
-        //     Route::delete('/delete/{id}', [MasterDiskonController::class, 'destroy']);
-        // });
+        Route::group(['prefix' => 'diskon'], function () {
+            Route::get('/', [MasterDiskonController::class, 'index']);
+            Route::post('/store', [MasterDiskonController::class, 'store']);
+            Route::get('/edit/{id}', [MasterDiskonController::class, 'edit']);
+            Route::post('/update', [MasterDiskonController::class, 'update']);
+            Route::delete('/delete/{id}', [MasterDiskonController::class, 'destroy']);
+        });
     });
 
     Route::group(['prefix' => 'transaksi'], function () {

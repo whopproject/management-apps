@@ -18,9 +18,24 @@ export const ProductCard = ({ data, onClick }) => {
                 <div className="px-3 py-2">
                     <dl>
                         <div>
-                            <dd className="text-xs font-bold text-gray-500">
-                                {rupiah(produk.harga)}
-                            </dd>
+                            {produk.data_diskon !== null ? (
+                                <dd className="text-xs font-bold text-black">
+                                    <span className="line-through mr-1 text-gray-500">
+                                        {rupiah(produk.harga)}
+                                    </span>
+                                    <span>
+                                        {rupiah(
+                                            produk.harga -
+                                                produk.data_diskon
+                                                    .potongan_harga
+                                        )}
+                                    </span>
+                                </dd>
+                            ) : (
+                                <dd className="text-xs font-bold text-black">
+                                    {rupiah(produk.harga)}
+                                </dd>
+                            )}
                         </div>
                         <div className="h-10 text-xs mt-1">
                             <dd className="font-medium text-xs line-clamp-2">

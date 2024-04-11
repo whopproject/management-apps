@@ -18,6 +18,7 @@ return new class extends Migration
             $table->enum('status', ['Selesai', 'Draft']);
             $table->integer('total_item');
             $table->bigInteger('total_harga');
+            $table->bigInteger('pembayaran');
             $table->foreignUuid('id_diskon')->nullable()->constrained('master_diskon')->references('id')->onDelete('restrict')->onUpdate('cascade');
             $table->timestamps();
         });
