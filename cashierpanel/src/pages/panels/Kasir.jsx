@@ -4,11 +4,13 @@ import { PanelLayout } from "../../layouts/PanelLayout";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
+import Swal from "sweetalert2";
 import "react-responsive-modal/styles.css";
 import { ModalPrimary } from "../../components/ModalPrimary";
 import CurrencyInput from "react-currency-input-field";
 import { Loader } from "../../components/Loader";
 import { useNavigate } from "react-router-dom";
+import { ModalSecondary } from "../../components/ModalSecondary";
 
 export const Kasir = () => {
     let navigate = useNavigate();
@@ -18,6 +20,7 @@ export const Kasir = () => {
     const [subTotal, setSubTotal] = useState(0);
     const [totalDiskon, setTotalDiskon] = useState(0);
     const [dataDiskon, setDataDiskon] = useState([]);
+    const [aktifDiskon, setAktifDiskon] = useState([]);
     const [modalDiskon, setModalDiskon] = useState(false);
     const [pembayaran, setPembayaran] = useState(0);
     const [kembalian, setKembalian] = useState(0);
@@ -44,7 +47,7 @@ export const Kasir = () => {
     const [total, setTotal] = useState(0);
     const [kategori, setKategori] = useState("");
 
-    const [page, setPage] = useState(1);
+    let [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
 
     // fetch pertama local storage
@@ -52,16 +55,6 @@ export const Kasir = () => {
         const local = JSON.parse(localStorage.getItem("cartaktif"));
         if (local) {
             setCart(local);
-            const localDiskon = local.filter((dis) => dis.data_diskon !== null);
-            if (localDiskon.length > 0) {
-                localDiskon.map((element) => {
-                    if (element.data_diskon !== null) {
-                        setTotalDiskon(
-                            totalDiskon + element.data_diskon.potongan_harga
-                        );
-                    }
-                });
-            }
         }
     }, []);
 
@@ -92,6 +85,7 @@ export const Kasir = () => {
         } else {
             setSubTotal(0);
             setTotal(0);
+            setTotalDiskon(0);
         }
     }, [cart, setCart, setSubTotal, subTotal, totalDiskon, setTotalDiskon]);
 
@@ -161,16 +155,17 @@ export const Kasir = () => {
         setKategori,
     ]);
 
-    //fetch kategori
+    //fetch kategori & diskon
     useEffect(() => {
         axios
-            .get(`${import.meta.env.VITE_ALL_BASE_URL}/transaksi/kategori`, {
+            .get(`${import.meta.env.VITE_ALL_BASE_URL}/transaksi/create`, {
                 headers: {
                     Authorization: "Bearer " + Cookies.get("token"),
                 },
             })
             .then((res) => {
-                setKategoriProduk([...res.data]);
+                setKategoriProduk([...res.data.kategori]);
+                setDataDiskon([...res.data.diskon]);
             })
             .catch((error) => {
                 if (error.response.status == 403) {
@@ -189,25 +184,91 @@ export const Kasir = () => {
             const checkcart = cart.filter((fill) => fill.id == dataProduk.id);
             if (checkcart.length > 0) {
                 if (dataProduk.stok > checkcart[0].qty) {
-                    setCart(
-                        cart.map((datacart) => {
-                            if (datacart.id == dataProduk.id) {
-                                return {
-                                    ...datacart,
-                                    qty: datacart.qty + 1,
-                                    harga: datacart.harga + dataProduk.harga,
-                                };
-                            } else {
-                                return datacart;
-                            }
-                        })
-                    );
+                    if (dataProduk.data_diskon !== null) {
+                        setCart(
+                            cart.map((datacart) => {
+                                if (datacart.id == dataProduk.id) {
+                                    return {
+                                        ...datacart,
+                                        qty: datacart.qty + 1,
+                                        harga:
+                                            datacart.harga +
+                                            (dataProduk.harga -
+                                                dataProduk.data_diskon
+                                                    .potongan_harga),
+                                    };
+                                } else {
+                                    return datacart;
+                                }
+                            })
+                        );
+                    } else {
+                        setCart(
+                            cart.map((datacart) => {
+                                if (datacart.id == dataProduk.id) {
+                                    return {
+                                        ...datacart,
+                                        qty: datacart.qty + 1,
+                                        harga:
+                                            datacart.harga + dataProduk.harga,
+                                    };
+                                } else {
+                                    return datacart;
+                                }
+                            })
+                        );
+                    }
                 } else {
                     alert("Stok Barang Tidak Cukup");
                 }
             } else {
+                if (dataProduk.data_diskon !== null) {
+                    setCart([
+                        ...cart,
+                        {
+                            id: dataProduk.id,
+                            gambar: dataProduk.gambar,
+                            nama: dataProduk.nama,
+                            qty: 1,
+                            harga:
+                                dataProduk.harga -
+                                dataProduk.data_diskon.potongan_harga,
+                            id_kategori: dataProduk.id_kategori,
+                            data_diskon: dataProduk.data_diskon,
+                        },
+                    ]);
+                } else {
+                    setCart([
+                        ...cart,
+                        {
+                            id: dataProduk.id,
+                            gambar: dataProduk.gambar,
+                            nama: dataProduk.nama,
+                            qty: 1,
+                            harga: dataProduk.harga,
+                            id_kategori: dataProduk.id_kategori,
+                            data_diskon: dataProduk.data_diskon,
+                        },
+                    ]);
+                }
+            }
+        } else {
+            if (dataProduk.data_diskon !== null) {
                 setCart([
-                    ...cart,
+                    {
+                        id: dataProduk.id,
+                        gambar: dataProduk.gambar,
+                        nama: dataProduk.nama,
+                        qty: 1,
+                        harga:
+                            dataProduk.harga -
+                            dataProduk.data_diskon.potongan_harga,
+                        id_kategori: dataProduk.id_kategori,
+                        data_diskon: dataProduk.data_diskon,
+                    },
+                ]);
+            } else {
+                setCart([
                     {
                         id: dataProduk.id,
                         gambar: dataProduk.gambar,
@@ -219,22 +280,6 @@ export const Kasir = () => {
                     },
                 ]);
             }
-        } else {
-            setCart([
-                {
-                    id: dataProduk.id,
-                    gambar: dataProduk.gambar,
-                    nama: dataProduk.nama,
-                    qty: 1,
-                    harga: dataProduk.harga,
-                    id_kategori: dataProduk.id_kategori,
-                    data_diskon: dataProduk.data_diskon,
-                },
-            ]);
-        }
-
-        if (dataProduk.data_diskon !== null) {
-            setTotalDiskon(totalDiskon + dataProduk.data_diskon.potongan_harga);
         }
         setRefreshCart(true);
     };
@@ -247,16 +292,22 @@ export const Kasir = () => {
                 if (datacart.id == id_produk) {
                     if (dataProduk[0].stok > datacart.qty) {
                         if (datacart.data_diskon !== null) {
-                            setTotalDiskon(
-                                totalDiskon +
-                                    dataProduk[0].data_diskon.potongan_harga
-                            );
+                            return {
+                                ...datacart,
+                                qty: datacart.qty + 1,
+                                harga:
+                                    datacart.harga +
+                                    (dataProduk[0].harga -
+                                        dataProduk[0].data_diskon
+                                            .potongan_harga),
+                            };
+                        } else {
+                            return {
+                                ...datacart,
+                                qty: datacart.qty + 1,
+                                harga: datacart.harga + dataProduk[0].harga,
+                            };
                         }
-                        return {
-                            ...datacart,
-                            qty: datacart.qty + 1,
-                            harga: datacart.harga + dataProduk[0].harga,
-                        };
                     } else {
                         alert("Stok Barang Tidak Cukup");
                         return datacart;
@@ -276,16 +327,21 @@ export const Kasir = () => {
             cart.map((datacart) => {
                 if (datacart.id == id_produk) {
                     if (datacart.data_diskon !== null) {
-                        setTotalDiskon(
-                            totalDiskon -
-                                dataProduk[0].data_diskon.potongan_harga
-                        );
+                        return {
+                            ...datacart,
+                            qty: datacart.qty - 1,
+                            harga:
+                                datacart.harga -
+                                (dataProduk[0].harga -
+                                    dataProduk[0].data_diskon.potongan_harga),
+                        };
+                    } else {
+                        return {
+                            ...datacart,
+                            qty: datacart.qty - 1,
+                            harga: datacart.harga - dataProduk[0].harga,
+                        };
                     }
-                    return {
-                        ...datacart,
-                        qty: datacart.qty - 1,
-                        harga: datacart.harga - dataProduk[0].harga,
-                    };
                 } else {
                     return datacart;
                 }
@@ -296,17 +352,90 @@ export const Kasir = () => {
 
     // hapus produk dari cart
     const removeItemCart = (id_produk) => {
-        let cartdiskon = cart.filter(
-            (data) => data.id == id_produk && data.data_diskon !== null
-        );
-        if (cartdiskon.length > 0) {
-            setTotalDiskon(
-                totalDiskon -
-                    cartdiskon[0].data_diskon.potongan_harga * cartdiskon[0].qty
-            );
-        }
         setCart(cart.filter((datacart) => datacart.id !== id_produk));
         setRefreshCart(true);
+    };
+
+    // atur aktif diskon ke total diskon
+    useEffect(() => {
+        setTotalDiskon(0);
+        aktifDiskon.map((data) => {
+            setTotalDiskon(totalDiskon + data.potongan_harga);
+        });
+    }, [aktifDiskon, setAktifDiskon]);
+
+    const handleCheckout = (e) => {
+        e.preventDefault();
+        if (pembayaran < total) {
+            alert("Pembayaran Tidak Bisa Lebih Kecil Dari Total Harga");
+        } else {
+            Swal.fire({
+                title: "Yakin?",
+                text: "Transaksi Akan Disimpan, Pastikan Data Sudah Benar",
+                icon: "info",
+                showCancelButton: true,
+                reverseButtons: true,
+                confirmButtonText: "Ya!",
+                cancelButtonText: "Batal",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: "Now Loading!",
+                        didOpen: () => {
+                            Swal.showLoading();
+                        },
+                    });
+                    axios
+                        .post(
+                            `${
+                                import.meta.env.VITE_ALL_BASE_URL
+                            }/transaksi/store`,
+                            { cart: cart, diskon: aktifDiskon },
+                            {
+                                headers: {
+                                    Authorization:
+                                        "Bearer " + Cookies.get("token"),
+                                },
+                            }
+                        )
+                        .then((res) => {
+                            setCart([]);
+                            setReloadTable(true);
+                            setRefreshCart(true);
+                            Swal.fire({
+                                title: "Success!",
+                                text: "Transaksi Berhasil, Cetak Invoice?",
+                                icon: "success",
+                                showCancelButton: true,
+                                reverseButtons: true,
+                                confirmButtonText: "Ya, Cetak Invoice!",
+                                cancelButtonText: "Tidak",
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.open(
+                                        res.data.invoice,
+                                        "_blank",
+                                        "noreferrer"
+                                    );
+                                }
+                            });
+                        })
+                        .catch((error) => {
+                            if (error.response.status == 403) {
+                                Cookies.remove("token");
+                                navigate("/");
+                            } else {
+                                console.log(error);
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: error.response.data.error,
+                                    icon: "error",
+                                });
+                            }
+                        });
+                }
+            });
+        }
     };
 
     return (
@@ -420,7 +549,15 @@ export const Kasir = () => {
                                 <div className="flex justify-end w-full gap-24 mt-24">
                                     <ol className="flex justify-center gap-1 text-xs font-medium mt-auto mb-auto">
                                         <li>
-                                            <button className="inline-flex h-8 w-8 items-center justify-center rounded border border-cyan-500 bg-white text-cyan-500 rtl:rotate-180">
+                                            <button
+                                                type="button"
+                                                disabled={
+                                                    allData.prev_page_url ==
+                                                    null
+                                                }
+                                                onClick={() => setPage(page--)}
+                                                className="inline-flex h-8 w-8 items-center justify-center rounded border border-cyan-500 bg-white text-cyan-500 rtl:rotate-180"
+                                            >
                                                 <span className="sr-only">
                                                     Prev Page
                                                 </span>
@@ -436,7 +573,15 @@ export const Kasir = () => {
                                             </button>
                                         </li>
                                         <li>
-                                            <button className="inline-flex text-white px-4 py-2 h-auto w-auto items-center justify-center rounded bg-cyan-500 rtl:rotate-180">
+                                            <button
+                                                type="button"
+                                                disabled={
+                                                    allData.next_page_url ==
+                                                    null
+                                                }
+                                                onClick={() => setPage(page++)}
+                                                className="inline-flex text-white px-4 py-2 h-auto w-auto items-center justify-center rounded bg-cyan-500 rtl:rotate-180"
+                                            >
                                                 <span className="mt-auto mb-auto">
                                                     Selanjutnya&nbsp;
                                                 </span>
@@ -655,7 +800,7 @@ export const Kasir = () => {
                                                         </svg>
                                                         Tambah Diskon
                                                     </button>
-                                                    {dataDiskon.length > 0 ? (
+                                                    {aktifDiskon.length > 0 ? (
                                                         <span className="inline-flex items-center justify-center rounded-full bg-indigo-100 px-2.5 py-0.5 text-indigo-700">
                                                             <svg
                                                                 xmlns="http://www.w3.org/2000/svg"
@@ -673,7 +818,7 @@ export const Kasir = () => {
                                                             </svg>
                                                             <p className="whitespace-nowrap text-xs">
                                                                 {
-                                                                    dataDiskon.length
+                                                                    aktifDiskon.length
                                                                 }{" "}
                                                                 Diskon
                                                                 Diterapkan
@@ -683,14 +828,19 @@ export const Kasir = () => {
                                                         ""
                                                     )}
                                                 </div>
-                                                <div className="flex justify-end">
-                                                    <a
-                                                        href="#"
-                                                        className="block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600"
-                                                    >
-                                                        Checkout
-                                                    </a>
-                                                </div>
+                                                <form onSubmit={handleCheckout}>
+                                                    <div className="flex justify-end">
+                                                        <button
+                                                            disabled={
+                                                                cart.length <= 0
+                                                            }
+                                                            type="submit"
+                                                            className="block rounded bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600"
+                                                        >
+                                                            Checkout
+                                                        </button>
+                                                    </div>
+                                                </form>
                                             </div>
                                         </div>
                                     </div>
@@ -700,11 +850,108 @@ export const Kasir = () => {
                     </div>
                     {/* end of right sidebar */}
                 </div>
-                <ModalPrimary
+                <ModalSecondary
                     header={"Tambah Diskon"}
                     open={modalDiskon}
                     closeModal={() => setModalDiskon(false)}
-                ></ModalPrimary>
+                >
+                    <div className="pb-4 border-b border-b-black space-y-4">
+                        <h6>Diskon Yang Diterapkan</h6>
+                        {aktifDiskon.length <= 0 ? (
+                            <p className="text-black text-center text-sm w-full p-2.5">
+                                Tidak Ada Diskon Diterapkan
+                            </p>
+                        ) : (
+                            aktifDiskon.map((dis, i) => {
+                                return (
+                                    <div
+                                        key={i}
+                                        className="flex justify-between w-full"
+                                    >
+                                        <div className="w-full text-black me-3">
+                                            <p className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5">
+                                                {dis.nama} -{" "}
+                                                {rupiah(dis.potongan_harga)}
+                                            </p>
+                                        </div>
+                                        <div
+                                            className="inline-flex justify-end rounded-md shadow-sm m-auto"
+                                            role="group"
+                                        >
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setAktifDiskon(
+                                                        aktifDiskon.filter(
+                                                            (data) =>
+                                                                data.id !==
+                                                                dis.id
+                                                        )
+                                                    )
+                                                }
+                                                className="p-2.5 text-sm font-medium m-auto text-white bg-red-500 border border-gray-200 rounded-lg hover:bg-red-600"
+                                            >
+                                                -
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
+                    <h6>Pilihh Diskon</h6>
+                    {dataDiskon.length > 0 ? (
+                        dataDiskon.map((any, i) => {
+                            if (
+                                aktifDiskon.filter((tes) => tes.id == any.id)
+                                    .length > 0
+                            ) {
+                                return "";
+                            } else {
+                                return (
+                                    <div
+                                        key={i}
+                                        className="flex justify-between w-full"
+                                    >
+                                        <div className="w-full text-black me-3">
+                                            <p className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5">
+                                                {any.nama} -{" "}
+                                                {rupiah(any.potongan_harga)}
+                                            </p>
+                                        </div>
+                                        <div
+                                            className="inline-flex justify-end rounded-md shadow-sm m-auto"
+                                            role="group"
+                                        >
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    if (cart.length > 0) {
+                                                        setAktifDiskon([
+                                                            ...aktifDiskon,
+                                                            any,
+                                                        ]);
+                                                    } else {
+                                                        alert(
+                                                            "Keranjang Sedang Kosong, Tidak Dapat Menerapkan Diskon"
+                                                        );
+                                                    }
+                                                }}
+                                                className="p-2.5 text-sm font-medium m-auto text-white bg-green-500 border border-gray-200 rounded-lg hover:bg-green-600"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            }
+                        })
+                    ) : (
+                        <p className="text-black text-center text-sm w-full p-2.5">
+                            Tidak Ada Diskon Yang Diterapkan
+                        </p>
+                    )}
+                </ModalSecondary>
             </PanelLayout>
         </>
     );

@@ -2,6 +2,7 @@
 
 namespace App\Models\Master;
 
+use App\Models\Transaksi\TransaksiItem;
 use App\Traits\HashId;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -39,6 +40,11 @@ class MasterProduk extends Model
     public function dataDiskon()
     {
         return $this->belongsTo(MasterDiskon::class, 'id_diskon', 'id');
+    }
+
+    public function dataTransaksiItem()
+    {
+        return $this->hasMany(TransaksiItem::class, 'id_produk', 'id');
     }
 
     public function sluggable(): array

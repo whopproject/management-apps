@@ -43,7 +43,7 @@ Route::middleware(('jwt'))->group(function () {
         Route::group(['prefix' => 'produk'], function () {
             Route::get('/', [MasterProdukController::class, 'index']);
             Route::get('/create', [MasterProdukController::class, 'create']);
-            // Route::get('/test', [MasterProdukController::class, 'test']);
+            Route::get('/test', [MasterProdukController::class, 'test']);
             Route::post('/store', [MasterProdukController::class, 'store']);
             Route::get('/edit/{id}', [MasterProdukController::class, 'edit']);
             Route::post('/update', [MasterProdukController::class, 'update']);
@@ -61,7 +61,8 @@ Route::middleware(('jwt'))->group(function () {
 
     Route::group(['prefix' => 'transaksi'], function () {
         Route::get('/produk', [TransaksiController::class, 'index']);
-        Route::get('/kategori', [TransaksiController::class, 'kategori']);
+        Route::get('/create', [TransaksiController::class, 'create']);
+        Route::post('/store', [TransaksiController::class, 'store']);
 
         Route::group(['prefix' => 'pembelian'], function () {
             Route::get('/', [TransaksiPembelianController::class, 'index']);

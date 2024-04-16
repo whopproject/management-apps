@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Response;
 use Spatie\Image\Image;
 
 class MasterProdukController extends Controller
@@ -33,14 +35,14 @@ class MasterProdukController extends Controller
                 $q->whereHas('dataDiskon', function ($q) {
                     $q->where('status', 'Published')
                         ->where('jenis', 'Produk')
-                        ->where('tanggal_selesai', '>=', Carbon::now());
+                        ->where('tanggal_selesai', '>=', Carbon::now()->format('Y-m-d'));
                 });
             })
             ->when($diskon == 'Tidak Aktif', function ($q) {
                 $q->doesntHave('dataDiskon', 'or')->orWhereHas('dataDiskon', function ($q) {
                     $q->where('jenis', 'Produk')->where(function ($w) {
                         $w->where('status', '!=', 'Published')
-                            ->orWhere('tanggal_selesai', '<', Carbon::now());
+                            ->orWhere('tanggal_selesai', '<', Carbon::now()->format('Y-m-d'));
                     });
                 });
             })
@@ -62,7 +64,7 @@ class MasterProdukController extends Controller
     {
         $kategori = MasterKategoriProduk::get();
         $diskon = MasterDiskon::where('status', 'Published')
-            ->where('tanggal_selesai', '>', Carbon::now())
+            ->where('tanggal_selesai', '>=', Carbon::now()->format('Y-m-d'))
             ->where('jenis', 'Produk')
             ->get();
         return response()->json(compact('kategori', 'diskon'), 200);
@@ -116,14 +118,18 @@ class MasterProdukController extends Controller
         }
     }
 
-    // public function test(Request $request)
-    // {
-    //     $master = MasterProduk::get();
-    //     $data = $request->stok;
-    //     $filename = explode('-', $data);
-    //     $master = $master->whereBetween('stok', $filename);
-    //     dd($master);
-    // }
+    public function test(Request $request)
+    {
+        // $path = storage_path('Transaksi/Invoice/2024-04-16-085051-2KC3-invoice.pdf');
+        // return response($path, 200);
+        // $fileUrl = Storage::disk('local');
+        // return FacadesResponse::make($path, 200, array('content-type' => 'application/pdf'));
+        // $filename = '/storage/Transaksi/Invoice/2024-04-16-085051-2KC3-invoice.pdf';
+        // $path = public_path($filename);
+
+        // $url =  response()->file($path, array('content-type' => 'application/pdf'));
+        // return response($url);
+    }
 
     public function update(Request $request)
     {

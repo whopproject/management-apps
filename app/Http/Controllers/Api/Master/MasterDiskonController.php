@@ -21,10 +21,10 @@ class MasterDiskonController extends Controller
         $periode = request('periode', '');
         $diskon = MasterDiskon::with('dataProduk')
             ->when($periode == 'Aktif', function ($query) {
-                $query->where('tanggal_selesai', '>=', Carbon::now());
+                $query->where('tanggal_selesai', '>=', Carbon::now()->format('Y-m-d'));
             })
             ->when($periode == 'Tidak Aktif', function ($query) {
-                $query->where('tanggal_selesai', '<', Carbon::now());
+                $query->where('tanggal_selesai', '<', Carbon::now()->format('Y-m-d'));
             })
             ->when($jenis, function ($query) use ($jenis) {
                 $query->where('jenis', $jenis);

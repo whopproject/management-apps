@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('transaksi_transaksi_item', function (Blueprint $table) {
+        Schema::create('transaksi_diskon_transaksi', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('id_transaksi')->constrained('transaksi_transaksi')->references('id')->onDelete('restrict')->onUpdate('cascade');
-            $table->foreignUuid('id_produk')->constrained('master_produk')->references('id')->onDelete('restrict')->onUpdate('cascade');
-            $table->foreignUuid('id_diskon')->nullable()->constrained('master_diskon')->references('id')->onDelete('restrict')->onUpdate('cascade');
-            $table->integer('qty');
-            $table->bigInteger('subtotal');
+            $table->foreignUuid('id_diskon')->constrained('master_diskon')->references('id')->onDelete('restrict')->onUpdate('cascade');
             $table->timestamps();
         });
     }
@@ -27,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('transaksi_transaksi_item');
+        Schema::dropIfExists('transaksi_diskon_transaksi');
     }
 };

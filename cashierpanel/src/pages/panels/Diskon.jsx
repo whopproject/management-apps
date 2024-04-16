@@ -337,10 +337,10 @@ export const Diskon = () => {
                                 head={[
                                     "Nama",
                                     "Periode",
-                                    "Aktif/Tidak Aktif",
                                     "Potongan Harga",
                                     "Jenis",
                                     "Status",
+                                    "Aktif/Tidak Aktif",
                                     "Aksi",
                                 ]}
                                 label={"Diskon"}
@@ -479,16 +479,6 @@ export const Diskon = () => {
                                                         )}
                                                     </td>
                                                     <td className="px-6 py-4 text-black">
-                                                        {new Date(
-                                                            all.tanggal_selesai
-                                                        ).getTime() >=
-                                                            new Date().getTime() ||
-                                                        all.status ==
-                                                            "Published"
-                                                            ? "Aktif"
-                                                            : "Tidak Aktif"}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-black">
                                                         {rupiah(
                                                             all.potongan_harga
                                                         )}
@@ -498,6 +488,16 @@ export const Diskon = () => {
                                                     </td>
                                                     <td className="px-6 py-4 text-black">
                                                         {all.status}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-black">
+                                                        {new Date(
+                                                            all.tanggal_selesai
+                                                        ).getTime() >=
+                                                            new Date().getTime() &&
+                                                        all.status ==
+                                                            "Published"
+                                                            ? "Aktif"
+                                                            : "Tidak Aktif"}
                                                     </td>
                                                     <td className="px-6 py-4 text-black">
                                                         <div>

@@ -2,6 +2,7 @@
 
 namespace App\Models\Transaksi;
 
+use App\Models\Master\MasterDiskon;
 use App\Models\Master\MasterProduk;
 use App\Models\Master\Produk;
 use App\Traits\HashId;
@@ -14,7 +15,7 @@ class TransaksiItem extends Model
     use HashId;
 
     protected $table = 'transaksi_transaksi_item';
-    protected $fillable = ['id_transaksi', 'id_produk', 'qty', 'subtotal'];
+    protected $fillable = ['id_transaksi', 'id_produk', 'qty', 'subtotal', 'id_diskon'];
     protected $primaryKey = 'id';
 
     public function dataTransaksi()
@@ -25,5 +26,10 @@ class TransaksiItem extends Model
     public function dataProduk()
     {
         return $this->belongsTo(MasterProduk::class, 'id_produk', 'id');
+    }
+
+    public function dataDiskon()
+    {
+        return $this->belongsTo(MasterDiskon::class, 'id_diskon', 'id');
     }
 }

@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('transaksi_transaksi', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('invoice');
-            $table->dateTime('tanggal');
+            $table->string('no_invoice')->unique();
+            $table->string('invoice')->nullable();
+            $table->date('tanggal');
             $table->enum('status', ['Selesai', 'Draft']);
             $table->integer('total_item');
             $table->bigInteger('total_harga');
             $table->bigInteger('pembayaran');
-            $table->foreignUuid('id_diskon')->nullable()->constrained('master_diskon')->references('id')->onDelete('restrict')->onUpdate('cascade');
             $table->timestamps();
         });
     }

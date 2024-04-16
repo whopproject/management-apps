@@ -29,7 +29,7 @@ class MasterDiskon extends Model
         });
     }
 
-    public function dataTransaksi()
+    public function dataDiskonTransaksi()
     {
         return $this->hasMany(Transaksi::class, 'id_diskon', 'id');
     }
