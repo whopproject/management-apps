@@ -37,14 +37,14 @@ function App() {
                             </LoginRoute>
                         }
                     ></Route>
-                    <Route
+                    {/* <Route
                         path="/home"
                         element={
                             <AdminRoute>
                                 <Home></Home>
                             </AdminRoute>
                         }
-                    ></Route>
+                    ></Route> */}
                     <Route
                         path="/panel/dashboard"
                         element={

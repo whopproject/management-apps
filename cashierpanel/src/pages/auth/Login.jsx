@@ -22,7 +22,7 @@ export default function Login() {
                 let { token, user } = res.data;
                 Cookies.set("token", token, { expires: 1 });
                 Cookies.set("auth", JSON.stringify(user), { expires: 1 });
-                navigate("/home");
+                navigate("/panel/dashboard");
             })
             .catch((error) => {
                 alert(error);

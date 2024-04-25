@@ -15,7 +15,7 @@ class TransaksiItem extends Model
     use HashId;
 
     protected $table = 'transaksi_transaksi_item';
-    protected $fillable = ['id_transaksi', 'id_produk', 'qty', 'subtotal', 'id_diskon'];
+    protected $fillable = ['id_transaksi', 'id_produk', 'qty', 'subtotal', 'id_diskon', 'harga_satuan', 'potongan_diskon'];
     protected $primaryKey = 'id';
 
     public function dataTransaksi()
@@ -31,5 +31,18 @@ class TransaksiItem extends Model
     public function dataDiskon()
     {
         return $this->belongsTo(MasterDiskon::class, 'id_diskon', 'id');
+    }
+
+    public function scopeSearch($query, $term)
+    {
+        $term = "%$term%";
+
+        $query->where(function ($query) use ($term) {
+            $query->whereHas('dataProduk', function ($q) use ($term) {
+                $q->where('nama', 'like', $term);
+            })->orWhereHas('dataTransaksi', function ($w) use ($term) {
+                $w->where('no_invoice', 'like', $term);
+            });
+        });
     }
 }

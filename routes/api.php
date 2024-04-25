@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Master\MasterDiskonController;
 use App\Http\Controllers\Api\Master\MasterKategoriProdukController;
 use App\Http\Controllers\Api\Master\MasterProdukController;
 use App\Http\Controllers\Api\Transaksi\TransaksiController;
+use App\Http\Controllers\Api\Transaksi\TransaksiItemController;
 use App\Http\Controllers\Api\Transaksi\TransaksiPembelianController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -29,7 +30,10 @@ Route::post('login', [AuthController::class, 'login']);
 
 Route::middleware(('jwt'))->group(function () {
 
-    Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::group(['prefix' => 'dashboard'], function () {
+        Route::get('/', [DashboardController::class, 'index']);
+        Route::get('/grafik_penjualan', [DashboardController::class, 'grafik_penjualan']);
+    });
 
     Route::group(['prefix' => 'data-master'], function () {
         Route::group(['prefix' => 'kategori'], function () {
@@ -60,9 +64,11 @@ Route::middleware(('jwt'))->group(function () {
     });
 
     Route::group(['prefix' => 'transaksi'], function () {
-        Route::get('/produk', [TransaksiController::class, 'index']);
+        Route::get('/', [TransaksiController::class, 'index']);
+        Route::get('/produk', [TransaksiController::class, 'produk_kasir']);
         Route::get('/create', [TransaksiController::class, 'create']);
         Route::post('/store', [TransaksiController::class, 'store']);
+        Route::get('/show_item/{id}', [TransaksiController::class, 'show_item_diskon']);
 
         Route::group(['prefix' => 'pembelian'], function () {
             Route::get('/', [TransaksiPembelianController::class, 'index']);
@@ -70,6 +76,11 @@ Route::middleware(('jwt'))->group(function () {
             Route::get('/edit/{id}', [TransaksiPembelianController::class, 'edit']);
             Route::post('/update', [TransaksiPembelianController::class, 'update']);
             Route::delete('/delete/{id}', [TransaksiPembelianController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'transaksi-item'], function () {
+            Route::get('/', [TransaksiItemController::class, 'index']);
+            Route::get('/show/{id}', [TransaksiItemController::class, 'show']);
         });
     });
 });

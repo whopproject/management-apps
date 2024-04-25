@@ -26,4 +26,14 @@ class Transaksi extends Model
     {
         return $this->hasMany(DiskonTransaksi::class, 'id_transaksi', 'id');
     }
+
+    public function scopeSearch($query, $term)
+    {
+        $term = "%$term%";
+
+        $query->where(function ($query) use ($term) {
+            $query->where('no_invoice', 'like', $term)
+                ->orWhere('tanggal', 'like', $term);
+        });
+    }
 }

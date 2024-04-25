@@ -24,7 +24,12 @@ export const TableData = ({
                         ) : (
                             ""
                         )}
-                        <div className="flex justify-end h-full">
+                        <div
+                            className={
+                                (buttonModal !== false ? "" : "w-full") +
+                                " flex justify-end h-full"
+                            }
+                        >
                             {filter !== false ? filter : ""}
                             <div className="relative">
                                 <select

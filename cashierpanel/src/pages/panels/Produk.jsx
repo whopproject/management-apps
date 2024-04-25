@@ -276,6 +276,9 @@ export const Produk = () => {
                 }
             )
             .then((res) => {
+                let checkdiskon = diskonProduk.filter(
+                    (diskon, i) => diskon.id == res.data.id_diskon
+                );
                 setProdukForm({
                     id: res.data.id,
                     nama: res.data.nama,
@@ -283,7 +286,7 @@ export const Produk = () => {
                     gambar: "",
                     stok: res.data.stok,
                     id_kategori: res.data.id_kategori,
-                    id_diskon: res.data.id_diskon,
+                    id_diskon: checkdiskon.length > 0 ? res.data.id_diskon : "",
                 });
                 setHeaderModal("Edit Data");
                 setModalProduk(true);
@@ -573,7 +576,7 @@ export const Produk = () => {
                                     ) : (
                                         <tr className="bg-white border-b">
                                             <td
-                                                colSpan={8}
+                                                colSpan={9}
                                                 className="text-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
                                             >
                                                 <div className="flex w-full justify-center">
@@ -585,7 +588,7 @@ export const Produk = () => {
                                 ) : (
                                     <tr className="bg-white border-b">
                                         <td
-                                            colSpan={8}
+                                            colSpan={9}
                                             className="text-center px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
                                         >
                                             {loader == true ? (

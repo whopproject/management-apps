@@ -19,7 +19,28 @@ use Illuminate\Http\Request;
 
 class TransaksiController extends Controller
 {
+
     public function index()
+    {
+        $paginate = request('paginate', 8);
+        $search_value = request('q', '');
+        $status = request('status', '');
+        $formdate = request('daritanggal', '');
+        $formke = request('ketanggal', '');
+        $transaksi = Transaksi::with('dataTransaksiItem', 'dataDiskonTransaksi')
+            ->orderBy('tanggal', 'desc')
+            ->when($status, function ($query) use ($status) {
+                $query->where('status', $status);
+            })
+            ->when($formdate && $formke, function ($q) use ($formdate, $formke) {
+                $q->whereBetween('tanggal', [$formdate, $formke]);
+            })
+            ->search(trim($search_value))
+            ->paginate($paginate);
+        return response(json_encode($transaksi), 200);
+    }
+
+    public function produk_kasir()
     {
         $paginate = request('paginate', 8);
         $search_value = request('q', '');
@@ -78,16 +99,22 @@ class TransaksiController extends Controller
                 $newtransaksiitem->qty = $keranjang['qty'];
                 if ($keranjang['data_diskon'] !== null) {
                     $newtransaksiitem->id_diskon = $keranjang['data_diskon']['id'];
+                    $newtransaksiitem->potongan_diskon = $keranjang['data_diskon']['potongan_harga'];
+                } else {
+                    $newtransaksiitem->potongan_diskon = 0;
                 }
                 $newtransaksiitem->subtotal = $keranjang['harga'];
-                $newtransaksiitem->save();
 
                 $masterproduk = MasterProduk::find($keranjang['id']);
                 $masterproduk->stok = $masterproduk->stok - $keranjang['qty'];
                 $masterproduk->save();
 
+                $newtransaksiitem->harga_satuan = $masterproduk->harga;
+
                 $total_harga = $total_harga += $keranjang['harga'];
                 $total_item = $total_item += $keranjang['qty'];
+
+                $newtransaksiitem->save();
             }
 
             if (isset($diskon)) {
@@ -95,6 +122,7 @@ class TransaksiController extends Controller
                     $newdiskontransaksi = new DiskonTransaksi();
                     $newdiskontransaksi->id_transaksi = $newtransaksi->id;
                     $newdiskontransaksi->id_diskon = $diskontransaksi['id'];
+                    $newdiskontransaksi->potongan_diskon = $diskontransaksi['potongan_harga'];
                     $newdiskontransaksi->save();
 
                     $total_diskon = $total_diskon += $diskontransaksi['potongan_harga'];
@@ -127,5 +155,16 @@ class TransaksiController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 422);
         }
+    }
+
+    public function show_item_diskon($id_transaksi)
+    {
+        $transaksiitem = TransaksiItem::with('dataTransaksi', 'dataProduk', 'dataDiskon')
+            ->where('id_transaksi', $id_transaksi)
+            ->get();
+        $diskon_transaksi = DiskonTransaksi::with('dataTransaksi', 'dataDiskon')
+            ->where('id_transaksi', $id_transaksi)
+            ->get();
+        return response(compact('transaksiitem', 'diskon_transaksi'), 200);
     }
 }

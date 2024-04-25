@@ -120,15 +120,9 @@ class MasterProdukController extends Controller
 
     public function test(Request $request)
     {
-        // $path = storage_path('Transaksi/Invoice/2024-04-16-085051-2KC3-invoice.pdf');
-        // return response($path, 200);
-        // $fileUrl = Storage::disk('local');
-        // return FacadesResponse::make($path, 200, array('content-type' => 'application/pdf'));
-        // $filename = '/storage/Transaksi/Invoice/2024-04-16-085051-2KC3-invoice.pdf';
-        // $path = public_path($filename);
-
-        // $url =  response()->file($path, array('content-type' => 'application/pdf'));
-        // return response($url);
+        // $date = Carbon::now()->subMonth(12);
+        // $date = Carbon::now()->subMonth(12)->monthsUntil(now());
+        // return response($date, 200);
     }
 
     public function update(Request $request)

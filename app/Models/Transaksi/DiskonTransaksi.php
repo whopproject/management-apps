@@ -12,7 +12,7 @@ class DiskonTransaksi extends Model
     use HashId;
 
     protected $table = 'transaksi_diskon_transaksi';
-    protected $fillable = ['id_diskon', 'id_transaksi'];
+    protected $fillable = ['id_diskon', 'id_transaksi', 'potongan_diskon'];
     protected $primaryKey = 'id';
 
     public function dataTransaksiItem()
