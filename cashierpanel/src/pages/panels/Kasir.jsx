@@ -402,6 +402,7 @@ export const Kasir = () => {
                             setCart([]);
                             setReloadTable(true);
                             setRefreshCart(true);
+                            setPembayaran(0);
                             Swal.fire({
                                 title: "Success!",
                                 text: "Transaksi Berhasil, Cetak Invoice?",
@@ -753,7 +754,9 @@ export const Kasir = () => {
                                                                 name="pembayaran"
                                                                 className="bg-gray-50 rounded-sm text-gray-900 focus:outline-none text-sm block h-10 w-32 p-2.5"
                                                                 placeholder="Please enter a number"
-                                                                defaultValue={0}
+                                                                value={
+                                                                    pembayaran
+                                                                }
                                                                 disabled={
                                                                     cart.length ==
                                                                     0

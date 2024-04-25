@@ -13,10 +13,12 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $transaksiday = Transaksi::where('tanggal', Carbon::now())->count();
-        $pembelianday = TransaksiPembelian::where('tanggal', Carbon::now())->count();
-        $produkterjualday = TransaksiItem::distinct('id_produk')->whereHas('dataTransaksi', function ($q) {
-            $q->where('tanggal', Carbon::now());
+        $startday = Carbon::now()->startOfDay();
+        $endday = Carbon::now()->endOfDay();
+        $transaksiday = Transaksi::whereBetween('tanggal', [$startday, $endday])->sum('pembayaran');
+        $pembelianday = TransaksiPembelian::whereBetween('tanggal', [$startday, $endday])->sum('total_harga');
+        $produkterjualday = TransaksiItem::distinct('id_produk')->whereHas('dataTransaksi', function ($q) use ($startday, $endday) {
+            $q->whereBetween('tanggal', [$startday, $endday]);
         })->count();
 
         return response()->json(compact('transaksiday', 'pembelianday', 'produkterjualday'), 200);
@@ -114,39 +116,62 @@ class DashboardController extends Controller
     {
         $filterbulan = $request->filterbulan;
         if ($filterbulan == '12') {
-            $data = TransaksiItem::select('transaksi_transaksi.*', 'master_produk.nama as nama_produk', 'total_terjual')
-                ->whereDate('tanggal', '>=', Carbon::now()->subMonth(12))
-                ->selectRaw('COUNT(id_produk) as total_terjual')
-                ->join('master_produk', 'master_produk.id', '=', 'transaksi_transaksi.id_produk')
+            $data = TransaksiItem::select('master_produk.nama as nama_produk')
+                ->whereHas('dataTransaksi', function ($q) {
+                    $q->whereDate('tanggal', '>', Carbon::now()->firstOfMonth()->subMonth(12));
+                })
+                ->selectRaw('COUNT(qty) as total_terjual')
+                ->leftJoin('master_produk', 'master_produk.id', '=', 'transaksi_transaksi_item.id_produk')
                 ->groupBy('id_produk')
                 ->orderBy('total_terjual', 'desc')
+                ->limit(15)
                 ->get();
         } else if ($filterbulan == '3') {
-            $data = TransaksiItem::select('transaksi_transaksi.*', 'master_produk.nama as nama_produk', 'total_terjual')
-                ->whereDate('tanggal', '>=', Carbon::now()->subMonth(3))
-                ->selectRaw('COUNT(id_produk) as total_terjual')
-                ->join('master_produk', 'master_produk.id', '=', 'transaksi_transaksi.id_produk')
+            $data = TransaksiItem::select('master_produk.nama as nama_produk')
+                ->whereHas('dataTransaksi', function ($q) {
+                    $q->whereDate('tanggal', '>', Carbon::now()->firstOfMonth()->subMonth(3));
+                })
+                ->selectRaw('COUNT(qty) as total_terjual')
+                ->leftJoin('master_produk', 'master_produk.id', '=', 'transaksi_transaksi_item.id_produk')
                 ->groupBy('id_produk')
                 ->orderBy('total_terjual', 'desc')
+                ->limit(15)
                 ->get();
         } else if ($filterbulan == '1') {
-            $data = TransaksiItem::select('transaksi_transaksi.*', 'master_produk.nama as nama_produk', 'total_terjual')
-                ->whereDate('tanggal', '>=', Carbon::now()->subMonth(3))
-                ->selectRaw('COUNT(id_produk) as total_terjual')
-                ->join('master_produk', 'master_produk.id', '=', 'transaksi_transaksi.id_produk')
+            $data = TransaksiItem::select('master_produk.nama as nama_produk')
+                ->whereHas('dataTransaksi', function ($q) {
+                    $q->whereMonth('tanggal', Carbon::now()->month);
+                })
+                ->selectRaw('COUNT(qty) as total_terjual')
+                ->leftJoin('master_produk', 'master_produk.id', '=', 'transaksi_transaksi_item.id_produk')
                 ->groupBy('id_produk')
                 ->orderBy('total_terjual', 'desc')
+                ->limit(15)
+                ->get();
+        } else if ($filterbulan == '15') {
+            $data = TransaksiItem::select('master_produk.nama as nama_produk')
+                ->whereHas('dataTransaksi', function ($q) {
+                    $q->whereDate('tanggal', '>', Carbon::now()->subDay(15));
+                })
+                ->selectRaw('COUNT(qty) as total_terjual')
+                ->leftJoin('master_produk', 'master_produk.id', '=', 'transaksi_transaksi_item.id_produk')
+                ->groupBy('id_produk')
+                ->orderBy('total_terjual', 'desc')
+                ->limit(15)
                 ->get();
         } else if ($filterbulan == '7') {
-            $data = TransaksiItem::select('transaksi_transaksi.*', 'master_produk.nama as nama_produk', 'total_terjual')
-                ->whereDate('tanggal', '>=', Carbon::now()->subDay(7))
-                ->selectRaw('COUNT(id_produk) as total_terjual')
-                ->join('master_produk', 'master_produk.id', '=', 'transaksi_transaksi.id_produk')
+            $data = TransaksiItem::select('master_produk.nama as nama_produk')
+                ->whereHas('dataTransaksi', function ($q) {
+                    $q->whereDate('tanggal', '>', Carbon::now()->subDay(7));
+                })
+                ->selectRaw('COUNT(qty) as total_terjual')
+                ->leftJoin('master_produk', 'master_produk.id', '=', 'transaksi_transaksi_item.id_produk')
                 ->groupBy('id_produk')
                 ->orderBy('total_terjual', 'desc')
+                ->limit(15)
                 ->get();
         }
 
-        return response()->json(compact('data'), 200);
+        return response($data, 200);
     }
 }

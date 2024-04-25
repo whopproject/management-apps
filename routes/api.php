@@ -33,6 +33,7 @@ Route::middleware(('jwt'))->group(function () {
     Route::group(['prefix' => 'dashboard'], function () {
         Route::get('/', [DashboardController::class, 'index']);
         Route::get('/grafik_penjualan', [DashboardController::class, 'grafik_penjualan']);
+        Route::get('/produk_terlaris', [DashboardController::class, 'produk_terlaris']);
     });
 
     Route::group(['prefix' => 'data-master'], function () {

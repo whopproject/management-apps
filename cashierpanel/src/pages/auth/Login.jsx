@@ -4,6 +4,7 @@ import { Head } from "../../components/Head";
 import Cookies from "js-cookie";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export default function Login() {
     let navigate = useNavigate();
@@ -16,16 +17,27 @@ export default function Login() {
     const handlerLogin = (e) => {
         e.preventDefault();
 
+        Swal.fire({
+            title: "Now Loading!",
+            didOpen: () => {
+                Swal.showLoading();
+            },
+        });
         axios
             .post(`${import.meta.env.VITE_ALL_BASE_URL}/login`, akun)
             .then((res) => {
+                Swal.close();
                 let { token, user } = res.data;
                 Cookies.set("token", token, { expires: 1 });
                 Cookies.set("auth", JSON.stringify(user), { expires: 1 });
                 navigate("/panel/dashboard");
             })
             .catch((error) => {
-                alert(error);
+                Swal.fire({
+                    title: "Error!",
+                    text: error.response.data.error,
+                    icon: "error",
+                });
             });
     };
 

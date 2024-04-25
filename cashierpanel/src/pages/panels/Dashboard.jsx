@@ -73,18 +73,17 @@ export const Dashboard = () => {
         labels: [],
         datasets: [
             {
-                label: "Total Pemasukan",
+                label: "Produk Terlaris",
                 data: [],
                 fill: true,
-                borderColor: "rgb(53, 162, 235)",
-                backgroundColor: "rgba(53, 162, 235, 0.5)",
+                borderColor: "rgb(245, 66, 126)",
+                backgroundColor: "rgba(245, 66, 126, 0.5)",
             },
         ],
     });
 
     const optionsBarChart = {
         responsive: true,
-        maintainAspectRatio: false,
         plugins: {
             legend: {
                 position: "top",
@@ -117,13 +116,14 @@ export const Dashboard = () => {
     };
 
     const [filterGrafikLine, setFilterGrafikLine] = useState("12");
-    const [filterGrafikBar, setFilterGrafikBar] = useState("");
+    const [filterGrafikBar, setFilterGrafikBar] = useState(12);
     const [pemasukanBersih, setPemasukanBersih] = useState(0);
     const [pemasukanKotor, setPemasukanKotor] = useState(0);
     const [totalPenjualan, setTotalPenjualan] = useState(0);
     const [totalProdukTerjual, setTotalProdukTerjusl] = useState(0);
     const [totalPembelian, setTotalPembelian] = useState(0);
     const [loaderGrafikLine, setLoaderGrafikLine] = useState(false);
+    const [loaderGrafikBar, setLoaderGrafikBar] = useState(false);
 
     // rekap penjualan harian
     useEffect(() => {
@@ -184,18 +184,6 @@ export const Dashboard = () => {
                             dataperlabel.push(0);
                         }
                     });
-                    setDataLineChart({
-                        labels: [...labelformat],
-                        datasets: [
-                            {
-                                label: "Total Pemasukan",
-                                data: [...dataperlabel],
-                                fill: true,
-                                borderColor: "rgb(53, 162, 235)",
-                                backgroundColor: "rgba(53, 162, 235, 0.5)",
-                            },
-                        ],
-                    });
                 } else {
                     res.data.label.map((label) => {
                         labelformat.push(
@@ -215,19 +203,19 @@ export const Dashboard = () => {
                             dataperlabel.push(0);
                         }
                     });
-                    setDataLineChart({
-                        labels: [...labelformat],
-                        datasets: [
-                            {
-                                label: "Total Pemasukan",
-                                data: [...dataperlabel],
-                                fill: true,
-                                borderColor: "rgb(53, 162, 235)",
-                                backgroundColor: "rgba(53, 162, 235, 0.5)",
-                            },
-                        ],
-                    });
                 }
+                setDataLineChart({
+                    labels: [...labelformat],
+                    datasets: [
+                        {
+                            label: "Total Pemasukan",
+                            data: [...dataperlabel],
+                            fill: true,
+                            borderColor: "rgb(53, 162, 235)",
+                            backgroundColor: "rgba(53, 162, 235, 0.5)",
+                        },
+                    ],
+                });
                 setPemasukanBersih(res.data.pemasukanbersih);
                 setPemasukanKotor(res.data.pemasukankotor);
                 setLoaderGrafikLine(false);
@@ -246,6 +234,56 @@ export const Dashboard = () => {
         setFilterGrafikLine,
         loaderGrafikLine,
         setLoaderGrafikLine,
+    ]);
+
+    // grafik produk
+    useEffect(() => {
+        axios
+            .get(
+                `${
+                    import.meta.env.VITE_ALL_BASE_URL
+                }/dashboard/produk_terlaris?filterbulan=${filterGrafikBar}`,
+                {
+                    headers: {
+                        Authorization: "Bearer " + Cookies.get("token"),
+                    },
+                }
+            )
+            .then((res) => {
+                let labelproduk = [];
+                let totalterjual = [];
+                res.data.map((label) => {
+                    labelproduk.push(label.nama_produk);
+                    totalterjual.push(label.total_terjual);
+                });
+                setDataBarChart({
+                    labels: [...labelproduk],
+                    datasets: [
+                        {
+                            label: "Produk Terjual",
+                            data: [...totalterjual],
+                            fill: true,
+                            borderColor: "rgb(245, 66, 126)",
+                            backgroundColor: "rgba(245, 66, 126, 0.5)",
+                        },
+                    ],
+                });
+                setLoaderGrafikBar(false);
+            })
+            .catch((error) => {
+                setLoaderGrafikBar(false);
+                if (error.response.status == 403) {
+                    Cookies.remove("token");
+                    navigate("/");
+                } else {
+                    alert(error.response.data.error);
+                }
+            });
+    }, [
+        filterGrafikBar,
+        setFilterGrafikBar,
+        loaderGrafikBar,
+        setLoaderGrafikBar,
     ]);
 
     const [loader, setLoader] = useState(false);
@@ -583,7 +621,7 @@ export const Dashboard = () => {
                                         Produk Terjual Hari Ini
                                     </h3>
                                     <p className="text-3xl font-bold">
-                                        {rupiah(totalProdukTerjual)}
+                                        {totalProdukTerjual}
                                     </p>
                                 </div>
                             </div>
@@ -761,17 +799,29 @@ export const Dashboard = () => {
                                     </p>
                                     <div className="flex justify-end mb-2">
                                         <div className="relative w-fit">
-                                            <select className="h-full border rounded-lg block appearance-none w-fit bg-white border-gray-300 text-black py-2 px-2 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-                                                <option value="">
+                                            <select
+                                                value={filterGrafikBar}
+                                                onChange={(e) => {
+                                                    setFilterGrafikBar(
+                                                        e.target.value
+                                                    );
+                                                    setLoaderGrafikBar(true);
+                                                }}
+                                                className="h-full border rounded-lg block appearance-none w-full bg-white border-gray-300 text-black py-2 px-2 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                            >
+                                                <option value="12">
                                                     1 Tahun Terakhir
                                                 </option>
-                                                <option value="1-10">
+                                                <option value="3">
                                                     3 Bulan Terakhir
                                                 </option>
-                                                <option value="1-10">
-                                                    1 Bulan Terakhir
+                                                <option value="1">
+                                                    Bulan Ini
                                                 </option>
-                                                <option value="1-10">
+                                                <option value="15">
+                                                    15 Hari Terakhir
+                                                </option>
+                                                <option value="7">
                                                     1 Minggu Terakhir
                                                 </option>
                                             </select>
@@ -786,16 +836,23 @@ export const Dashboard = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    {/* <Bar
-                                        height={400}
-                                        width={800}
-                                        style={{
-                                            width: "100%",
-                                            height: "100%",
-                                        }}
-                                        options={optionsBarChart}
-                                        data={dataBarChart}
-                                    /> */}
+                                    {dataBarChart.labels.length < 1 ||
+                                    loaderGrafikBar == true ? (
+                                        <div className="flex w-full justify-center">
+                                            <Loader></Loader>
+                                        </div>
+                                    ) : (
+                                        <Bar
+                                            height={400}
+                                            width={800}
+                                            style={{
+                                                width: "100%",
+                                                height: "100%",
+                                            }}
+                                            options={optionsBarChart}
+                                            data={dataBarChart}
+                                        />
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -809,6 +866,7 @@ export const Dashboard = () => {
                                             "Total Item",
                                             "Pemasukan",
                                             "Diskon",
+                                            "Status",
                                             "Detail",
                                             "Invoice",
                                         ]}
@@ -824,36 +882,6 @@ export const Dashboard = () => {
                                         buttonModal={false}
                                         filter={
                                             <>
-                                                <div className="relative">
-                                                    <select
-                                                        value={filterStatus}
-                                                        onChange={(e) =>
-                                                            setFilterStatus(
-                                                                e.target.value
-                                                            )
-                                                        }
-                                                        className="h-full border block appearance-none w-full bg-white border-gray-300 text-black py-2 px-2 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                                    >
-                                                        <option value="">
-                                                            Pilih Status
-                                                        </option>
-                                                        <option value="Selesai">
-                                                            Selesai
-                                                        </option>
-                                                        <option value="Draft">
-                                                            Draft
-                                                        </option>
-                                                    </select>
-                                                    <div className="pointer-events-none absolute top-3 right-0 flex items-center px-2 text-black">
-                                                        <svg
-                                                            className="fill-current h-4 w-4"
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            viewBox="0 0 20 20"
-                                                        >
-                                                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                                                        </svg>
-                                                    </div>
-                                                </div>
                                                 <div className="flex me-4">
                                                     <p className="m-auto mx-1 text-sm font-semibold">
                                                         Dari
@@ -950,6 +978,36 @@ export const Dashboard = () => {
                                                         </svg>
                                                     </button>
                                                 </div>
+                                                <div className="relative">
+                                                    <select
+                                                        value={filterStatus}
+                                                        onChange={(e) =>
+                                                            setFilterStatus(
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                        className="h-full border block appearance-none w-full bg-white border-gray-300 text-black py-2 px-2 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                                    >
+                                                        <option value="">
+                                                            Pilih Status
+                                                        </option>
+                                                        <option value="Selesai">
+                                                            Selesai
+                                                        </option>
+                                                        <option value="Draft">
+                                                            Draft
+                                                        </option>
+                                                    </select>
+                                                    <div className="pointer-events-none absolute top-3 right-0 flex items-center px-2 text-black">
+                                                        <svg
+                                                            className="fill-current h-4 w-4"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            viewBox="0 0 20 20"
+                                                        >
+                                                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                                        </svg>
+                                                    </div>
+                                                </div>
                                             </>
                                         }
                                     >
@@ -1001,6 +1059,9 @@ export const Dashboard = () => {
                                                                           )
                                                                       )
                                                                     : rupiah(0)}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-black">
+                                                                {all.status}
                                                             </td>
                                                             <td className="px-6 py-4 text-black">
                                                                 <button
@@ -1369,8 +1430,12 @@ export const Dashboard = () => {
                                             prev_page_url={
                                                 allDataItem.prev_page_url
                                             }
-                                            nextPage={() => setPageItem(page++)}
-                                            prevPage={() => setPageItem(page--)}
+                                            nextPage={() =>
+                                                setPageItem(pageItem++)
+                                            }
+                                            prevPage={() =>
+                                                setPageItem(pageItem--)
+                                            }
                                         >
                                             {buttonPageItem.map((btn, i) => {
                                                 return (
@@ -1381,7 +1446,7 @@ export const Dashboard = () => {
                                                             }
                                                             className={
                                                                 "flex items-center justify-center px-3 h-8 leading-tight border border-gray-300 hover:text-black " +
-                                                                (page == btn
+                                                                (pageItem == btn
                                                                     ? "bg-cyan-400 hover:bg-cyan-600 text-black"
                                                                     : "bg-white hover:bg-gray-100 text-gray-500")
                                                             }
