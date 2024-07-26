@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-unused-vars */
+
 import { useEffect, useState } from "react";
 import { PanelLayout } from "../../layouts/PanelLayout";
 import { Line, Bar } from "react-chartjs-2";
@@ -39,6 +42,7 @@ ChartJS.register(
 );
 
 export const Dashboard = () => {
+    let navigate = useNavigate();
     const [dataLineChart, setDataLineChart] = useState({
         labels: [],
         datasets: [
@@ -76,8 +80,8 @@ export const Dashboard = () => {
                 label: "Produk Terlaris",
                 data: [],
                 fill: true,
-                borderColor: "rgb(245, 66, 126)",
-                backgroundColor: "rgba(245, 66, 126, 0.5)",
+                borderColor: "rgb(63, 209, 0)",
+                backgroundColor: "rgba(63, 209, 0, 0.5)",
             },
         ],
     });
@@ -163,7 +167,8 @@ export const Dashboard = () => {
             )
             .then((res) => {
                 const labelformat = [];
-                const dataperlabel = [];
+                const datapemasukankotor = [];
+                const datapemasukanbersih = [];
                 if (filterGrafikLine == 12 || filterGrafikLine == 3) {
                     res.data.label.map((label) => {
                         labelformat.push(
@@ -179,9 +184,13 @@ export const Dashboard = () => {
                                 labelfilter(label)
                         );
                         if (fildata.length > 0) {
-                            dataperlabel.push(fildata[0].total);
+                            datapemasukankotor.push(fildata[0].pemasukan_kotor);
+                            datapemasukanbersih.push(
+                                fildata[0].pemasukan_bersih
+                            );
                         } else {
-                            dataperlabel.push(0);
+                            datapemasukankotor.push(0);
+                            datapemasukanbersih.push(0);
                         }
                     });
                 } else {
@@ -198,9 +207,13 @@ export const Dashboard = () => {
                             (e) => tanggal(e.hari) == tanggal(label)
                         );
                         if (fildata.length > 0) {
-                            dataperlabel.push(fildata[0].total);
+                            datapemasukankotor.push(fildata[0].pemasukan_kotor);
+                            datapemasukanbersih.push(
+                                fildata[0].pemasukan_bersih
+                            );
                         } else {
-                            dataperlabel.push(0);
+                            datapemasukankotor.push(0);
+                            datapemasukanbersih.push(0);
                         }
                     });
                 }
@@ -208,8 +221,15 @@ export const Dashboard = () => {
                     labels: [...labelformat],
                     datasets: [
                         {
-                            label: "Total Pemasukan",
-                            data: [...dataperlabel],
+                            label: "Pemasukan Kotor",
+                            data: datapemasukankotor,
+                            fill: true,
+                            borderColor: "rgb(255, 99, 132)",
+                            backgroundColor: "rgba(255, 99, 132, 0.5)",
+                        },
+                        {
+                            label: "Pemasukan Bersih",
+                            data: datapemasukanbersih,
                             fill: true,
                             borderColor: "rgb(53, 162, 235)",
                             backgroundColor: "rgba(53, 162, 235, 0.5)",
@@ -263,8 +283,8 @@ export const Dashboard = () => {
                             label: "Produk Terjual",
                             data: [...totalterjual],
                             fill: true,
-                            borderColor: "rgb(245, 66, 126)",
-                            backgroundColor: "rgba(245, 66, 126, 0.5)",
+                            borderColor: "rgb(63, 209, 0)",
+                            backgroundColor: "rgba(63, 209, 0, 0.5)",
                         },
                     ],
                 });

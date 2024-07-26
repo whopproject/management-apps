@@ -28,51 +28,35 @@ class DashboardController extends Controller
     {
         $filterbulan = $request->filterbulan;
         if ($filterbulan == '12') {
-            $data = Transaksi::whereDate('tanggal', '>', Carbon::now()->firstOfMonth()->subMonth(12))
-                ->selectRaw('year(tanggal) as tahun, month(tanggal) as month, SUM(pembayaran) as total')
-                ->groupBy('tahun', 'month')
-                ->orderBy('tahun', 'desc')
-                ->orderBy('month', 'desc')
-                ->get();
+            $label = Carbon::now()->firstOfMonth()->subMonth(11)->addDay(1)->monthsUntil(now());
 
-            $pemasukanbersih = Transaksi::whereDate('tanggal', '>', Carbon::now()->subMonth(12))
+            $pemasukankotor = Transaksi::whereDate('tanggal', '>', Carbon::now()->subMonth(12))
                 ->sum('pembayaran');
 
             $pembelian = TransaksiPembelian::whereDate('tanggal', '>', Carbon::now()->subMonth(12))
                 ->sum('total_harga');
-            $pemasukankotor = $pemasukanbersih - $pembelian;
+            $pemasukanbersih = $pemasukankotor - $pembelian;
 
-            $label = Carbon::now()->firstOfMonth()->subMonth(11)->addDay(1)->monthsUntil(now());
-        } else if ($filterbulan == '3') {
-            $data = Transaksi::whereDate('tanggal', '>', Carbon::now()->firstOfMonth()->subMonth(3))
-                ->selectRaw('year(tanggal) as tahun, month(tanggal) as month, SUM(pembayaran) as total')
+            $data = Transaksi::whereDate('tanggal', '>', Carbon::now()->firstOfMonth()->subMonth(12))
+                ->selectRaw('year(tanggal) as tahun, month(tanggal) as month, SUM(pembayaran) as pemasukan_kotor, SUM(pembayaran) - ' . $pembelian . ' as pemasukan_bersih')
                 ->groupBy('tahun', 'month')
                 ->orderBy('tahun', 'desc')
                 ->orderBy('month', 'desc')
                 ->get();
-
-            $pemasukanbersih = Transaksi::whereDate('tanggal', '>', Carbon::now()->subMonth(3))
-                ->sum('pembayaran');
-
+        } else if ($filterbulan == '3') {
+            $label = Carbon::now()->firstOfMonth()->subMonth(2)->addDay(1)->monthsUntil(now());
             $pembelian = TransaksiPembelian::whereDate('tanggal', '>', Carbon::now()->subMonth(3))
                 ->sum('total_harga');
-            $pemasukankotor = $pemasukanbersih - $pembelian;
-
-            $label = Carbon::now()->firstOfMonth()->subMonth(2)->addDay(1)->monthsUntil(now());
-        } else if ($filterbulan == '1') {
-            $data = Transaksi::whereMonth('tanggal', Carbon::now()->month)
-                ->selectRaw('Date(tanggal) hari, SUM(pembayaran) as total')
-                ->groupBy('hari')
-                ->orderBy('hari', 'desc')
-                ->get();
-
-            $pemasukanbersih = Transaksi::whereMonth('tanggal', Carbon::now()->month)
+            $pemasukankotor = Transaksi::whereDate('tanggal', '>', Carbon::now()->subMonth(3))
                 ->sum('pembayaran');
-
-            $pembelian = TransaksiPembelian::whereMonth('tanggal', Carbon::now()->month)
-                ->sum('total_harga');
-            $pemasukankotor = $pemasukanbersih - $pembelian;
-
+            $pemasukanbersih = $pemasukankotor - $pembelian;
+            $data = Transaksi::whereDate('tanggal', '>', Carbon::now()->firstOfMonth()->subMonth(3))
+                ->selectRaw('year(tanggal) as tahun, month(tanggal) as month, SUM(pembayaran) as pemasukan_kotor, SUM(pembayaran) - ' . $pembelian . ' as pemasukan_bersih')
+                ->groupBy('tahun', 'month')
+                ->orderBy('tahun', 'desc')
+                ->orderBy('month', 'desc')
+                ->get();
+        } else if ($filterbulan == '1') {
             $start = Carbon::parse(Carbon::now())->firstOfMonth()->subSecond(1)->addDay(1);
             $end = Carbon::parse(Carbon::now())->endOfMonth();
 
@@ -80,33 +64,47 @@ class DashboardController extends Controller
                 $label[] = $start->copy();
                 $start->addDay();
             }
-        } else if ($filterbulan == '15') {
-            $data = Transaksi::whereDate('tanggal', '>', Carbon::now()->subDay(15))
-                ->selectRaw('Date(tanggal) hari, SUM(pembayaran) as total')
+
+            $pemasukankotor = Transaksi::whereMonth('tanggal', Carbon::now()->month)
+                ->sum('pembayaran');
+
+            $pembelian = TransaksiPembelian::whereMonth('tanggal', Carbon::now()->month)
+                ->sum('total_harga');
+            $pemasukanbersih = $pemasukankotor - $pembelian;
+
+            $data = Transaksi::whereMonth('tanggal', Carbon::now()->month)
+                ->selectRaw('Date(tanggal) hari, SUM(pembayaran) as pemasukan_kotor, SUM(pembayaran) - ' . $pembelian . ' as pemasukan_bersih')
                 ->groupBy('hari')
                 ->orderBy('hari', 'desc')
                 ->get();
+        } else if ($filterbulan == '15') {
+            $label = Carbon::now()->startOfDay()->subDay(14)->subSecond(1)->addDay(1)->daysUntil(now()->addDay(1));
 
-            $pemasukanbersih = Transaksi::whereDate('tanggal', '>', Carbon::now()->subDay(15))
+            $pemasukankotor = Transaksi::whereDate('tanggal', '>', Carbon::now()->subDay(15))
                 ->sum('pembayaran');
 
             $pembelian = TransaksiPembelian::whereDate('tanggal', '>', Carbon::now()->subDay(15))->sum('total_harga');
-            $pemasukankotor = $pemasukanbersih - $pembelian;
+            $pemasukanbersih = $pemasukankotor - $pembelian;
 
-            $label = Carbon::now()->startOfDay()->subDay(14)->subSecond(1)->addDay(1)->daysUntil(now()->addDay(1));
-        } else if ($filterbulan == '7') {
-            $data = Transaksi::whereDate('tanggal', '>', Carbon::now()->subDay(7))
-                ->selectRaw('Date(tanggal) hari, SUM(pembayaran) as total')
+            $data = Transaksi::whereDate('tanggal', '>', Carbon::now()->subDay(15))
+                ->selectRaw('Date(tanggal) hari, SUM(pembayaran) as pemasukan_kotor, SUM(pembayaran) - ' . $pembelian . ' as pemasukan_bersih')
                 ->groupBy('hari')
                 ->orderBy('hari', 'desc')
                 ->get();
+        } else if ($filterbulan == '7') {
+            $label = Carbon::now()->startOfDay()->subDay(6)->subSecond(1)->addDay(1)->daysUntil(now()->addDay(1));
 
-            $pemasukanbersih = Transaksi::whereDate('tanggal', '>', Carbon::now()->subDay(7))
+            $pemasukankotor = Transaksi::whereDate('tanggal', '>', Carbon::now()->subDay(7))
                 ->sum('pembayaran');
 
             $pembelian = TransaksiPembelian::whereDate('tanggal', '>', Carbon::now()->subDay(7))->sum('total_harga');
-            $pemasukankotor = $pemasukanbersih - $pembelian;
-            $label = Carbon::now()->startOfDay()->subDay(6)->subSecond(1)->addDay(1)->daysUntil(now()->addDay(1));
+            $pemasukanbersih = $pemasukankotor - $pembelian;
+
+            $data = Transaksi::whereDate('tanggal', '>', Carbon::now()->subDay(7))
+                ->selectRaw('Date(tanggal) hari, SUM(pembayaran) as pemasukan_kotor, SUM(pembayaran) - ' . $pembelian . ' as pemasukan_bersih')
+                ->groupBy('hari')
+                ->orderBy('hari', 'desc')
+                ->get();
         }
 
         return response()->json(compact('data', 'pemasukanbersih', 'pemasukankotor', 'label'), 200);
